@@ -1,35 +1,47 @@
-internal class Program
+using System;
+using System.IO;
+using System.Xml.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using VDS.RDF;
+using VDS.RDF.Writing;
+
+class Program
 {
-    private static void Main(string[] args)
+    static void Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
+        string swaggerJson = File.ReadAllText("swagger.json");
+        JObject swaggerObject = JObject.Parse(swaggerJson);
 
-        // Add services to the container.
-        builder.Services.AddRazorPages();
+        // Create an RDF graph
+        IGraph rdfGraph = new Graph();
 
-        var app = builder.Build();
-
-        app.UseSwagger();
-        app.UseSwaggerUI(c =>
+        // Extract properties from Swagger JSON and create RDF nodes
+        foreach (var path in swaggerObject["paths"])
         {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "SwaggerAPIToRDFConvertor");
-        });
+            foreach (var method in path.Children<JProperty>())
+            {
+                // Extract properties for RDF nodes
+                string pathUri = "http://example.org" + path.Path;
+                string methodUri = pathUri + "#" + method.Name;
 
-        // Configure the HTTP request pipeline.
-        if (!app.Environment.IsDevelopment())
-        {
-            app.UseExceptionHandler("/Error");
-            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-            app.UseHsts();
+                // Create RDF nodes
+                IUriNode subjectNode = rdfGraph.CreateUriNode(UriFactory.Create(pathUri));
+                IUriNode predicateNode = rdfGraph.CreateUriNode("ex:hasMethod");
+                IUriNode objectNode = rdfGraph.CreateUriNode(UriFactory.Create(methodUri));
+
+                // Assert RDF triples
+                rdfGraph.Assert(new Triple(subjectNode, predicateNode, objectNode));
+
+                // Add other properties as needed
+            }
         }
 
-        app.UseHttpsRedirection();
-        app.UseStaticFiles();
+        // Serialize RDF graph to Turtle format
+        CompressingTurtleWriter turtleWriter = new(); 
+        turtleWriter.Save(rdfGraph, "output.ttl");
 
-        app.UseRouting();
-
-        app.MapRazorPages();
-
-        app.Run();
+        // Save Turtle content to a file
+        Console.WriteLine("Conversion done.");
     }
 }

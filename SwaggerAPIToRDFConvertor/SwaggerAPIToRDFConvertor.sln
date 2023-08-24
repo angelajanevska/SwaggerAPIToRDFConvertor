@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwaggerAPIToRDFConvertor", "SwaggerAPIToRDFConvertor\SwaggerAPIToRDFConvertor.csproj", "{40751AE8-7364-47FB-89A4-FCAFBA134BF6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwaggerToRDFConvertor", "SwaggerToRDFConvertor\SwaggerToRDFConvertor.csproj", "{F67258AA-C8F3-4E3B-A70C-29338B9C1654}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{40751AE8-7364-47FB-89A4-FCAFBA134BF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{40751AE8-7364-47FB-89A4-FCAFBA134BF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{40751AE8-7364-47FB-89A4-FCAFBA134BF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{40751AE8-7364-47FB-89A4-FCAFBA134BF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F67258AA-C8F3-4E3B-A70C-29338B9C1654}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F67258AA-C8F3-4E3B-A70C-29338B9C1654}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F67258AA-C8F3-4E3B-A70C-29338B9C1654}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F67258AA-C8F3-4E3B-A70C-29338B9C1654}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
