@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
-using System.Web;
 using Newtonsoft.Json.Linq;
 using VDS.RDF;
+using VDS.RDF.Parsing;
 using VDS.RDF.Writing;
 
 class Program
@@ -12,43 +12,41 @@ class Program
         string swaggerJson = File.ReadAllText("swagger.json");
         JObject swaggerObject = JObject.Parse(swaggerJson);
 
-        // Create an RDF graph
-        IGraph graph = new Graph(new UriNode(UriFactory.Create("http://example.org/")));
-
-        // Define namespaces
-        //TODO: change to read from json
+        IGraph graph = new Graph();
         graph.NamespaceMap.AddNamespace("rdf", new Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#"));
         graph.NamespaceMap.AddNamespace("ex", new Uri("http://example.org/"));
 
         INode subject;
         INode obj;
 
-        // Extract properties 
         INode methodProperty = graph.CreateUriNode("ex:isMethodType");
 
         foreach (var pathProperty in swaggerObject["paths"].Children<JProperty>())
         {
-            string pathUri = "ex:" + pathProperty.Name;
+            string path = pathProperty.Name.Replace("{", "_").Replace("}", "_");
+            string pathUri = "http://example.org/" + path;
 
             foreach (var method in pathProperty.Value.Children<JProperty>())
             {
-                
-                subject =  graph.CreateUriNode(pathUri);
-                obj = graph.CreateUriNode("ex:"+method.Name);
-                graph.Assert(new Triple(subject, methodProperty, obj));
+                string methodName = System.Text.RegularExpressions.Regex.Unescape(method.Name);
+
+                subject = graph.CreateUriNode(new Uri(pathUri));
+                obj = graph.CreateUriNode(new Uri("http://example.org/" + methodName));
+
+                // Create the RDF triple
+                Triple triple = new Triple(subject, methodProperty, obj);
+                graph.Assert(triple);
             }
         }
 
-        foreach (Triple t in graph.Triples)
-        {
-            Console.WriteLine(t.ToString());
-        }
+        // Serialize the RDF graph to the desired format
+        CompressingTurtleWriter writer = new CompressingTurtleWriter();
+        System.IO.StringWriter sw = new System.IO.StringWriter();
+        writer.Save(graph, sw);
 
+        // Output the RDF triples in the desired format
+        Console.WriteLine(sw.ToString());
 
-        // Save 
-        //string outputPath = "output.ttl";
-        //File.WriteAllText(outputPath, content.ToString());
-
-        //Console.WriteLine($"Convertion done.");
+        Console.WriteLine($"Conversion done.");
     }
 }
