@@ -20,6 +20,22 @@ class Program
         INode pathTagsProperty = graph.CreateUriNode("ex:IsPathTag");
         INode summaryProperty = graph.CreateUriNode("ex:HasSummary");
 
+        if (swaggerObject.ContainsKey("tags"))
+        {
+            foreach (var tag in swaggerObject["tags"])
+            {
+                string tagName = tag.Value<string>("name");
+                string tagDescription = tag.Value<string>("description");
+                Uri tagUri = new Uri("http://example.org/tag/" + tagName);
+                INode tagSubject = graph.CreateUriNode(tagUri);
+
+                // Create RDF triples for tags
+                graph.Assert(new Triple(tagSubject, graph.CreateUriNode("rdf:type"), graph.CreateUriNode("ex:Tag")));
+                graph.Assert(new Triple(tagSubject, graph.CreateUriNode("rdfs:label"), graph.CreateLiteralNode(tagName)));
+                graph.Assert(new Triple(tagSubject, graph.CreateUriNode("rdfs:comment"), graph.CreateLiteralNode(tagDescription)));
+            }
+        }
+
         foreach (var pathProperty in swaggerObject["paths"].Children<JProperty>())
         {
             string path = pathProperty.Name.Replace("{", "_").Replace("}", "_");
