@@ -77,8 +77,11 @@ class Program
                 graph.Assert(summaryTriple);
 
                 var description = method.Value["description"].ToObject<string>();
-                Triple descriptionTriple = new(graph.CreateUriNode(new Uri(pathUri)), descriptionProperty, graph.CreateLiteralNode(description));
-                graph.Assert(descriptionTriple);
+                if (!string.IsNullOrEmpty(description))
+                {
+                    Triple descriptionTriple = new(graph.CreateUriNode(new Uri(pathUri)), descriptionProperty, graph.CreateLiteralNode(description));
+                    graph.Assert(descriptionTriple);
+                }
 
                 subject = graph.CreateUriNode(new Uri(pathUri));
                 obj = graph.CreateUriNode(new Uri("http://example.org/" + methodName));
