@@ -27,7 +27,7 @@ class Program
             {
                 string tagName = tag.Value<string>("name");
                 string tagDescription = tag.Value<string>("description");
-                Uri tagUri = new Uri("http://example.org/tag/" + tagName);
+                Uri tagUri = new ("http://example.org/tag/" + tagName);
                 INode tagSubject = graph.CreateUriNode(tagUri);
 
                 // Create RDF triples for tags
@@ -42,7 +42,7 @@ class Program
             foreach (var scheme in swaggerObject["schemes"])
             {
                 string schemeName = scheme.Value<string>();
-                Uri schemeUri = new Uri("http://example.org/scheme/" + schemeName.ToLower());
+                Uri schemeUri = new ("http://example.org/scheme/" + schemeName.ToLower());
                 INode schemeSubject = graph.CreateUriNode(schemeUri);
 
                 // Create RDF triples for schemes
@@ -68,7 +68,7 @@ class Program
                     obj = graph.CreateUriNode(new Uri("http://example.org/" + tag));
 
                     // Create the RDF triple for each tag
-                    Triple tagsTriple = new Triple(subject, pathTagsProperty, obj);
+                    Triple tagsTriple = new (subject, pathTagsProperty, obj);
                     graph.Assert(tagsTriple);
                 }
 
