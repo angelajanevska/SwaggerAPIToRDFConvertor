@@ -36,6 +36,20 @@ class Program
                 graph.Assert(new Triple(tagSubject, graph.CreateUriNode("rdfs:comment"), graph.CreateLiteralNode(tagDescription)));
             }
         }
+       
+        if (swaggerObject.ContainsKey("schemes"))
+        {
+            foreach (var scheme in swaggerObject["schemes"])
+            {
+                string schemeName = scheme.Value<string>();
+                Uri schemeUri = new Uri("http://example.org/scheme/" + schemeName.ToLower());
+                INode schemeSubject = graph.CreateUriNode(schemeUri);
+
+                // Create RDF triples for schemes
+                graph.Assert(new Triple(schemeSubject, graph.CreateUriNode("rdf:type"), graph.CreateUriNode("ex:Scheme")));
+                graph.Assert(new Triple(schemeSubject, graph.CreateUriNode("rdfs:label"), graph.CreateLiteralNode(schemeName)));
+            }
+        }
 
         foreach (var pathProperty in swaggerObject["paths"].Children<JProperty>())
         {
