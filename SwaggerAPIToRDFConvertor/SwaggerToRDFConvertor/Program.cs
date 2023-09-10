@@ -18,6 +18,7 @@ class Program
 
         INode methodProperty = graph.CreateUriNode("ex:isMethodType");
         INode pathTagsProperty = graph.CreateUriNode("ex:IsPathTag");
+        INode summaryProperty = graph.CreateUriNode("ex:HasSummary");
 
         foreach (var pathProperty in swaggerObject["paths"].Children<JProperty>())
         {
@@ -39,6 +40,10 @@ class Program
                     Triple tagsTriple = new Triple(subject, pathTagsProperty, obj);
                     graph.Assert(tagsTriple);
                 }
+
+                var summary = method.Value["summary"].ToObject<string>();
+                Triple summaryTriple = new (graph.CreateUriNode(new Uri(pathUri)), summaryProperty, graph.CreateUriNode(new Uri("http://example.org/" + summary.Replace(" ", "_").Replace(" ", "_"))));
+                graph.Assert(summaryTriple);
 
                 subject = graph.CreateUriNode(new Uri(pathUri));
                 obj = graph.CreateUriNode(new Uri("http://example.org/" + methodName));
