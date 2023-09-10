@@ -1,8 +1,5 @@
-﻿using System;
-using System.IO;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using VDS.RDF;
-using VDS.RDF.Parsing;
 using VDS.RDF.Writing;
 
 class Program
@@ -20,6 +17,7 @@ class Program
         INode obj;
 
         INode methodProperty = graph.CreateUriNode("ex:isMethodType");
+        INode pathTagsProperty = graph.CreateUriNode("ex:IsPathTag");
 
         foreach (var pathProperty in swaggerObject["paths"].Children<JProperty>())
         {
@@ -29,6 +27,18 @@ class Program
             foreach (var method in pathProperty.Value.Children<JProperty>())
             {
                 string methodName = System.Text.RegularExpressions.Regex.Unescape(method.Name);
+
+                var tags = method.Value["tags"].ToObject<string[]>();
+
+                foreach (var tag in tags)
+                {
+                    subject = graph.CreateUriNode(new Uri(pathUri));
+                    obj = graph.CreateUriNode(new Uri("http://example.org/" + tag));
+
+                    // Create the RDF triple for each tag
+                    Triple tagsTriple = new Triple(subject, pathTagsProperty, obj);
+                    graph.Assert(tagsTriple);
+                }
 
                 subject = graph.CreateUriNode(new Uri(pathUri));
                 obj = graph.CreateUriNode(new Uri("http://example.org/" + methodName));
