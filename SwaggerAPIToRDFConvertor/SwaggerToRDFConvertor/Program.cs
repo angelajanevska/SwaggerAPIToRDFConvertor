@@ -35,7 +35,8 @@ class Program
             ["post"] = "ex:HasPostMethod",
             ["delete"] = "ex:HasDeleteMethod",
             ["consumes"] = "ex:Consumes",
-            ["produces"] = "ex:Produces"
+            ["produces"] = "ex:Produces",
+            ["operationId"] = "ex:HasOperationId" 
         };
 
         // Create a JSON-LD context node and set it as the default context
@@ -50,6 +51,7 @@ class Program
         INode descriptionProperty = graph.CreateUriNode("ex:HasDescription");
         INode consumesProperty = graph.CreateUriNode("ex:Consumes");
         INode producesProperty = graph.CreateUriNode("ex:Produces");
+        INode operationIdProperty = graph.CreateUriNode("ex:HasOperationId"); 
 
         if (swaggerObject.ContainsKey("tags"))
         {
@@ -137,6 +139,14 @@ class Program
                         INode producesObj = graph.CreateLiteralNode(produceType);
                         graph.Assert(new Triple(producesSubject, producesProperty, producesObj));
                     }
+                }
+
+                string operationId = method.Value["operationId"]?.ToObject<string>();
+                if (!string.IsNullOrEmpty(operationId))
+                {
+                    INode operationIdSubject = graph.CreateUriNode(new Uri(pathUri + "#" + methodName));
+                    INode operationIdObj = graph.CreateLiteralNode(operationId);
+                    graph.Assert(new Triple(operationIdSubject, operationIdProperty, operationIdObj));
                 }
 
                 subject = graph.CreateUriNode(new Uri(pathUri + "#" + methodName));
