@@ -1,6 +1,10 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System;
+using System.IO;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 using VDS.RDF;
 using VDS.RDF.Writing;
+using StringWriter = System.IO.StringWriter;
 
 class Program
 {
@@ -16,6 +20,28 @@ class Program
         INode subject;
         INode obj;
 
+        // Define the JSON-LD context for mapping JSON keys to RDF predicates
+        JObject context = new JObject
+        {
+            ["@vocab"] = "http://example.org/",
+            ["tags"] = "ex:IsTag",
+            ["name"] = "ex:tagName",
+            ["description"] = "ex:tagDescription",
+            ["schemes"] = "ex:IsScheme",
+            ["paths"] = "ex:HasPath",
+            ["summary"] = "ex:HasSummary",
+            ["description"] = "ex:HasDescription",
+            ["get"] = "ex:HasGetMethod",
+            ["post"] = "ex:HasPostMethod",
+            ["delete"] = "ex:HasDeleteMethod"
+        };
+
+        // Create a JSON-LD context node and set it as the default context
+        INode contextNode = graph.CreateUriNode(new Uri("http://example.org/context"));
+        INode contextJsonLdNode = graph.CreateLiteralNode(context.ToString(Formatting.None));
+        graph.Assert(new Triple(contextNode, graph.CreateUriNode(new Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#value")), contextJsonLdNode));
+        graph.Assert(new Triple(contextNode, graph.CreateUriNode(new Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")), graph.CreateUriNode(new Uri("http://www.w3.org/ns/json-ld#Context"))));
+
         INode methodProperty = graph.CreateUriNode("ex:isMethodType");
         INode pathTagsProperty = graph.CreateUriNode("ex:IsPathTag");
         INode summaryProperty = graph.CreateUriNode("ex:HasSummary");
@@ -27,25 +53,23 @@ class Program
             {
                 string tagName = tag.Value<string>("name");
                 string tagDescription = tag.Value<string>("description");
-                Uri tagUri = new ("http://example.org/tag/" + tagName);
+                Uri tagUri = new Uri("http://example.org/tag/" + tagName);
                 INode tagSubject = graph.CreateUriNode(tagUri);
 
-                // Create RDF triples for tags
                 graph.Assert(new Triple(tagSubject, graph.CreateUriNode("rdf:type"), graph.CreateUriNode("ex:Tag")));
                 graph.Assert(new Triple(tagSubject, graph.CreateUriNode("rdfs:label"), graph.CreateLiteralNode(tagName)));
                 graph.Assert(new Triple(tagSubject, graph.CreateUriNode("rdfs:comment"), graph.CreateLiteralNode(tagDescription)));
             }
         }
-       
+
         if (swaggerObject.ContainsKey("schemes"))
         {
             foreach (var scheme in swaggerObject["schemes"])
             {
                 string schemeName = scheme.Value<string>();
-                Uri schemeUri = new ("http://example.org/scheme/" + schemeName.ToLower());
+                Uri schemeUri = new Uri("http://example.org/scheme/" + schemeName.ToLower());
                 INode schemeSubject = graph.CreateUriNode(schemeUri);
 
-                // Create RDF triples for schemes
                 graph.Assert(new Triple(schemeSubject, graph.CreateUriNode("rdf:type"), graph.CreateUriNode("ex:Scheme")));
                 graph.Assert(new Triple(schemeSubject, graph.CreateUriNode("rdfs:label"), graph.CreateLiteralNode(schemeName)));
             }
@@ -59,6 +83,7 @@ class Program
             foreach (var method in pathProperty.Value.Children<JProperty>())
             {
                 string methodName = System.Text.RegularExpressions.Regex.Unescape(method.Name);
+                string methodType = method.Name.ToLower();
 
                 var tags = method.Value["tags"].ToObject<string[]>();
 
@@ -67,35 +92,33 @@ class Program
                     subject = graph.CreateUriNode(new Uri(pathUri));
                     obj = graph.CreateUriNode(new Uri("http://example.org/" + tag));
 
-                    // Create the RDF triple for each tag
-                    Triple tagsTriple = new (subject, pathTagsProperty, obj);
-                    graph.Assert(tagsTriple);
+                    graph.Assert(new Triple(subject, pathTagsProperty, obj));
                 }
 
-                var summary = method.Value["summary"].ToObject<string>();
-                Triple summaryTriple = new (graph.CreateUriNode(new Uri(pathUri)), summaryProperty, graph.CreateLiteralNode(summary));
-                graph.Assert(summaryTriple);
+                string summary = method.Value["summary"].ToObject<string>();
+                INode summarySubject = graph.CreateUriNode(new Uri(pathUri + "#" + methodName));
+                INode summaryObj = graph.CreateLiteralNode(summary);
+                graph.Assert(new Triple(summarySubject, summaryProperty, summaryObj));
 
-                var description = method.Value["description"].ToObject<string>();
+                string description = method.Value["description"].ToObject<string>();
                 if (!string.IsNullOrEmpty(description))
                 {
-                    Triple descriptionTriple = new(graph.CreateUriNode(new Uri(pathUri)), descriptionProperty, graph.CreateLiteralNode(description));
-                    graph.Assert(descriptionTriple);
+                    INode descriptionSubject = graph.CreateUriNode(new Uri(pathUri + "#" + methodName));
+                    INode descriptionObj = graph.CreateLiteralNode(description);
+                    graph.Assert(new Triple(descriptionSubject, descriptionProperty, descriptionObj));
                 }
 
-                subject = graph.CreateUriNode(new Uri(pathUri));
-                obj = graph.CreateUriNode(new Uri("http://example.org/" + methodName));
+                subject = graph.CreateUriNode(new Uri(pathUri + "#" + methodName));
+                obj = graph.CreateUriNode(new Uri("http://example.org/" + methodType));
 
-                // Create the RDF triple
-                Triple triple = new Triple(subject, methodProperty, obj);
-                graph.Assert(triple);
+                graph.Assert(new Triple(subject, methodProperty, obj));
             }
         }
 
-        // Serialize the RDF graph to the desired format
-        CompressingTurtleWriter writer = new CompressingTurtleWriter();
-        System.IO.StringWriter sw = new System.IO.StringWriter();
-        writer.Save(graph, sw);
+        // Serialize the RDF graph to the desired format (e.g., Turtle)
+        StringWriter sw = new StringWriter();
+        CompressingTurtleWriter turtleWriter = new CompressingTurtleWriter();
+        turtleWriter.Save(graph, sw);
 
         // Output the RDF triples in the desired format
         Console.WriteLine(sw.ToString());
