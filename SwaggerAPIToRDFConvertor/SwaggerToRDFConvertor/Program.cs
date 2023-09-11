@@ -115,6 +115,39 @@ class Program
             }
         }
 
+        if (swaggerObject.ContainsKey("definitions"))
+        {
+            foreach (var definitionProperty in swaggerObject["definitions"].Children<JProperty>())
+            {
+                string definitionName = definitionProperty.Name;
+                JObject definitionObject = (JObject)definitionProperty.Value;
+
+                // Create a URI for the definition
+                string definitionUriString = "http://example.org/definition/" + definitionName;
+                INode definitionSubject = graph.CreateUriNode(new Uri(definitionUriString));
+
+                // Check if the "properties" property exists in the definitionObject
+                if (definitionObject.ContainsKey("properties"))
+                {
+                    foreach (var property in definitionObject["properties"].Children<JProperty>())
+                    {
+                        string propertyName = property.Name;
+
+                        // Create a URI for the property within the definition
+                        string propertyUriString = definitionUriString + "#" + propertyName;
+                        INode propertySubject = graph.CreateUriNode(new Uri(propertyUriString));
+
+                        // Create RDF triples for the property
+                        graph.Assert(new Triple(definitionSubject, graph.CreateUriNode("ex:hasProperty"), propertySubject));
+                        graph.Assert(new Triple(propertySubject, graph.CreateUriNode("rdf:type"), graph.CreateUriNode("ex:Property")));
+                        graph.Assert(new Triple(propertySubject, graph.CreateUriNode("rdfs:label"), graph.CreateLiteralNode(propertyName)));
+                    }
+                }
+
+            }
+        }
+
+
         // Serialize the RDF graph to the desired format (e.g., Turtle)
         StringWriter sw = new StringWriter();
         CompressingTurtleWriter turtleWriter = new CompressingTurtleWriter();
