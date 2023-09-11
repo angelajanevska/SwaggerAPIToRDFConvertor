@@ -33,7 +33,8 @@ class Program
             ["description"] = "ex:HasDescription",
             ["get"] = "ex:HasGetMethod",
             ["post"] = "ex:HasPostMethod",
-            ["delete"] = "ex:HasDeleteMethod"
+            ["delete"] = "ex:HasDeleteMethod",
+            ["consumes"] = "ex:Consumes"
         };
 
         // Create a JSON-LD context node and set it as the default context
@@ -46,6 +47,7 @@ class Program
         INode pathTagsProperty = graph.CreateUriNode("ex:IsPathTag");
         INode summaryProperty = graph.CreateUriNode("ex:HasSummary");
         INode descriptionProperty = graph.CreateUriNode("ex:HasDescription");
+        INode consumesProperty = graph.CreateUriNode("ex:Consumes");
 
         if (swaggerObject.ContainsKey("tags"))
         {
@@ -78,34 +80,50 @@ class Program
         foreach (var pathProperty in swaggerObject["paths"].Children<JProperty>())
         {
             string path = pathProperty.Name.Replace("{", "_").Replace("}", "_");
-            string pathUri = "http://example.org/" + path;
+            string pathUri = "http://example.org" + path;
 
             foreach (var method in pathProperty.Value.Children<JProperty>())
             {
                 string methodName = System.Text.RegularExpressions.Regex.Unescape(method.Name);
                 string methodType = method.Name.ToLower();
 
-                var tags = method.Value["tags"].ToObject<string[]>();
-
-                foreach (var tag in tags)
+                var tagsArray = method.Value["tags"]?.ToObject<string[]>();
+                if (tagsArray != null)
                 {
-                    subject = graph.CreateUriNode(new Uri(pathUri));
-                    obj = graph.CreateUriNode(new Uri("http://example.org/" + tag));
+                    foreach (var tag in tagsArray)
+                    {
+                        subject = graph.CreateUriNode(new Uri(pathUri));
+                        obj = graph.CreateUriNode(new Uri("http://example.org/" + tag));
 
-                    graph.Assert(new Triple(subject, pathTagsProperty, obj));
+                        graph.Assert(new Triple(subject, pathTagsProperty, obj));
+                    }
                 }
 
-                string summary = method.Value["summary"].ToObject<string>();
-                INode summarySubject = graph.CreateUriNode(new Uri(pathUri + "#" + methodName));
-                INode summaryObj = graph.CreateLiteralNode(summary);
-                graph.Assert(new Triple(summarySubject, summaryProperty, summaryObj));
+                string summary = method.Value["summary"]?.ToObject<string>();
+                if (!string.IsNullOrEmpty(summary))
+                {
+                    INode summarySubject = graph.CreateUriNode(new Uri(pathUri + "#" + methodName));
+                    INode summaryObj = graph.CreateLiteralNode(summary);
+                    graph.Assert(new Triple(summarySubject, summaryProperty, summaryObj));
+                }
 
-                string description = method.Value["description"].ToObject<string>();
+                string description = method.Value["description"]?.ToObject<string>();
                 if (!string.IsNullOrEmpty(description))
                 {
                     INode descriptionSubject = graph.CreateUriNode(new Uri(pathUri + "#" + methodName));
                     INode descriptionObj = graph.CreateLiteralNode(description);
                     graph.Assert(new Triple(descriptionSubject, descriptionProperty, descriptionObj));
+                }
+
+                var consumesArray = method.Value["consumes"]?.ToObject<string[]>();
+                if (consumesArray != null)
+                {
+                    foreach (var consumeType in consumesArray)
+                    {
+                        INode consumesSubject = graph.CreateUriNode(new Uri(pathUri + "#" + methodName));
+                        INode consumesObj = graph.CreateLiteralNode(consumeType);
+                        graph.Assert(new Triple(consumesSubject, consumesProperty, consumesObj));
+                    }
                 }
 
                 subject = graph.CreateUriNode(new Uri(pathUri + "#" + methodName));
