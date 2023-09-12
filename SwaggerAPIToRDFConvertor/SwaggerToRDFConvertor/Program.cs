@@ -32,6 +32,7 @@ class Program
             ["paths"] = "ex:HasPath",
             ["summary"] = "ex:HasSummary",
             ["description"] = "ex:HasDescription",
+            ["name"] = "ex:HasName",
             ["get"] = "ex:HasGetMethod",
             ["post"] = "ex:HasPostMethod",
             ["delete"] = "ex:HasDeleteMethod",
@@ -39,8 +40,19 @@ class Program
             ["produces"] = "ex:Produces",
             ["operationId"] = "ex:HasOperationId",
             ["security"] = "ex:HasSecurity",
-            ["scopes"] = "ex:HasSecurityScope"
-        };
+            ["scopes"] = "ex:HasSecurityScope",
+            ["name"] = "ex:schemeName",
+            ["definitions"] = "ex:IsDefinition",
+            ["securityDefinitions"] = "ex:IsSecurityDefinition",
+            ["description"] ="ex:TagDescription",
+            ["name"]="ex:SchemeName",
+            ["type"]="ex:SecurityDefinitionsType",
+            ["name"] = "ex:SecurityDefinitionsName",
+            ["name"] = "ex:SecurityDefinitionsPropertyName",
+            ["property"] = "ex:SecurityDefinitionsPropertyValue",
+            ["property"] = "ex:DefinitionProperty",
+            ["property"]= "ex:DefinitionNameProperty"
+    };
 
         // Create a JSON-LD context node and set it as the default context
         INode contextNode = graph.CreateUriNode(new Uri("http://example.org/context"));
@@ -49,7 +61,11 @@ class Program
         graph.Assert(new Triple(contextNode, graph.CreateUriNode(new Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")), graph.CreateUriNode(new Uri("http://www.w3.org/ns/json-ld#Context"))));
 
         INode methodProperty = graph.CreateUriNode("ex:isMethodType");
+        INode tagsProperty = graph.CreateUriNode("ex:IsTag");
+        INode schemeProperty = graph.CreateUriNode("ex:IsScheme");
         INode pathTagsProperty = graph.CreateUriNode("ex:IsPathTag");
+        INode definitionProperty = graph.CreateUriNode("ex:IsDefinition");
+        INode securityDefinitionsProperty = graph.CreateUriNode("ex:IsSecurityDefinition");
         INode summaryProperty = graph.CreateUriNode("ex:HasSummary");
         INode descriptionProperty = graph.CreateUriNode("ex:HasDescription");
         INode consumesProperty = graph.CreateUriNode("ex:Consumes");
@@ -57,6 +73,15 @@ class Program
         INode operationIdProperty = graph.CreateUriNode("ex:HasOperationId");
         INode securityProperty = graph.CreateUriNode("ex:HasSecurity");
         INode scopeProperty = graph.CreateUriNode("ex:SecurityScope");
+        INode tagNameProperty = graph.CreateUriNode("ex:TagName");
+        INode tagDescriptionProperty = graph.CreateUriNode("ex:TagDescription");
+        INode schemeNameProperty = graph.CreateUriNode("ex:SchemeName");
+        INode securityDefinitionsTypeProperty = graph.CreateUriNode("ex:SecurityDefinitionsType");
+        INode securityDefinitionsNameProperty = graph.CreateUriNode("ex:SecurityDefinitionsName");
+        INode securityDefinitionsPropertyNameProperty = graph.CreateUriNode("ex:SecurityDefinitionsPropertyName");
+        INode securityDefinitionsPropertyValueProperty = graph.CreateUriNode("ex:SecurityDefinitionsPropertyValue");
+        INode definitionPropertyProperty = graph.CreateUriNode("ex:DefinitionProperty");
+        INode definitionNamePropertyProperty = graph.CreateUriNode("ex:DefinitionNameProperty");
 
         if (swaggerObject.ContainsKey("tags"))
         {
@@ -67,9 +92,9 @@ class Program
                 Uri tagUri = new Uri("http://example.org/tag/" + tagName);
                 INode tagSubject = graph.CreateUriNode(tagUri);
 
-                graph.Assert(new Triple(tagSubject, graph.CreateUriNode("rdf:type"), graph.CreateUriNode("ex:Tag")));
-                graph.Assert(new Triple(tagSubject, graph.CreateUriNode("rdfs:label"), graph.CreateLiteralNode(tagName)));
-                graph.Assert(new Triple(tagSubject, graph.CreateUriNode("rdfs:comment"), graph.CreateLiteralNode(tagDescription)));
+                graph.Assert(new Triple(tagSubject, tagsProperty, graph.CreateUriNode("ex:Tag")));
+                graph.Assert(new Triple(tagSubject, tagNameProperty, graph.CreateLiteralNode(tagName)));
+                graph.Assert(new Triple(tagSubject, tagDescriptionProperty, graph.CreateLiteralNode(tagDescription)));
             }
         }
 
@@ -81,8 +106,8 @@ class Program
                 Uri schemeUri = new Uri("http://example.org/scheme/" + schemeName.ToLower());
                 INode schemeSubject = graph.CreateUriNode(schemeUri);
 
-                graph.Assert(new Triple(schemeSubject, graph.CreateUriNode("rdf:type"), graph.CreateUriNode("ex:Scheme")));
-                graph.Assert(new Triple(schemeSubject, graph.CreateUriNode("rdfs:label"), graph.CreateLiteralNode(schemeName)));
+                graph.Assert(new Triple(schemeSubject, schemeProperty, graph.CreateUriNode("ex:Scheme")));
+                graph.Assert(new Triple(schemeSubject, schemeNameProperty, graph.CreateLiteralNode(schemeName)));
             }
         }
 
@@ -196,18 +221,20 @@ class Program
             }
         }
 
+
+        // SecurityDefinitions
         if (swaggerObject.ContainsKey("securityDefinitions"))
         {
-            foreach (var securityDefinitionProperty in swaggerObject["securityDefinitions"].Children<JProperty>())
+            foreach (var securityDefinition in swaggerObject["securityDefinitions"].Children<JProperty>())
             {
-                string securityDefinitionName = securityDefinitionProperty.Name;
-                JObject securityDefinitionObject = (JObject)securityDefinitionProperty.Value;
+                string securityDefinitionName = securityDefinition.Name;
+                JObject securityDefinitionObject = (JObject)securityDefinition.Value;
 
                 string securityDefinitionUriString = "http://example.org/securityDefinition/" + securityDefinitionName;
                 INode securityDefinitionSubject = graph.CreateUriNode(new Uri(securityDefinitionUriString));
 
-                graph.Assert(new Triple(securityDefinitionSubject, graph.CreateUriNode("rdf:type"), graph.CreateUriNode("ex:SecurityDefinition")));
-                graph.Assert(new Triple(securityDefinitionSubject, graph.CreateUriNode("rdfs:label"), graph.CreateLiteralNode(securityDefinitionName)));
+                graph.Assert(new Triple(securityDefinitionSubject, securityDefinitionsProperty, graph.CreateUriNode("ex:SecurityDefinition")));
+                graph.Assert(new Triple(securityDefinitionSubject, securityDefinitionsNameProperty, graph.CreateLiteralNode(securityDefinitionName)));
 
                 foreach (var property in securityDefinitionObject.Properties())
                 {
@@ -217,8 +244,8 @@ class Program
                     string propertyUriString = securityDefinitionUriString + "#" + propertyName;
                     INode propertySubject = graph.CreateUriNode(new Uri(propertyUriString));
 
-                    graph.Assert(new Triple(propertySubject, graph.CreateUriNode("rdf:type"), graph.CreateUriNode("ex:Property")));
-                    graph.Assert(new Triple(propertySubject, graph.CreateUriNode("rdfs:label"), graph.CreateLiteralNode(propertyName)));
+                    graph.Assert(new Triple(propertySubject, securityDefinitionsTypeProperty, graph.CreateUriNode("ex:SecurityDefinitionProperty")));
+                    graph.Assert(new Triple(propertySubject, securityDefinitionsNameProperty, graph.CreateLiteralNode(propertyName)));
 
                     if (propertyValue.Type == JTokenType.String)
                     {
@@ -234,8 +261,8 @@ class Program
                             INode nestedPropertySubject = graph.CreateUriNode(new Uri(propertyUriString + "#" + nestedPropertyName));
 
                             graph.Assert(new Triple(securityDefinitionSubject, propertySubject, nestedPropertySubject));
-                            graph.Assert(new Triple(nestedPropertySubject, graph.CreateUriNode("rdfs:label"), graph.CreateLiteralNode(nestedPropertyName)));
-                            graph.Assert(new Triple(nestedPropertySubject, graph.CreateUriNode("ex:hasValue"), graph.CreateLiteralNode(nestedPropertyValue)));
+                            graph.Assert(new Triple(nestedPropertySubject, securityDefinitionsPropertyNameProperty, graph.CreateLiteralNode(nestedPropertyName)));
+                            graph.Assert(new Triple(nestedPropertySubject, securityDefinitionsPropertyValueProperty, graph.CreateLiteralNode(nestedPropertyValue)));
 
                         }
                     }
@@ -244,13 +271,13 @@ class Program
         }
 
 
-
+        // Definitions
         if (swaggerObject.ContainsKey("definitions"))
         {
-            foreach (var definitionProperty in swaggerObject["definitions"].Children<JProperty>())
+            foreach (var definition in swaggerObject["definitions"].Children<JProperty>())
             {
-                string definitionName = definitionProperty.Name;
-                JObject definitionObject = (JObject)definitionProperty.Value;
+                string definitionName = definition.Name;
+                JObject definitionObject = (JObject)definition.Value;
 
                 string definitionUriString = "http://example.org/definition/" + definitionName;
                 INode definitionSubject = graph.CreateUriNode(new Uri(definitionUriString));
@@ -264,9 +291,9 @@ class Program
                         string propertyUriString = definitionUriString + "#" + propertyName;
                         INode propertySubject = graph.CreateUriNode(new Uri(propertyUriString));
 
-                        graph.Assert(new Triple(definitionSubject, graph.CreateUriNode("ex:hasProperty"), propertySubject));
-                        graph.Assert(new Triple(propertySubject, graph.CreateUriNode("rdf:type"), graph.CreateUriNode("ex:Property")));
-                        graph.Assert(new Triple(propertySubject, graph.CreateUriNode("rdfs:label"), graph.CreateLiteralNode(propertyName)));
+                        graph.Assert(new Triple(definitionSubject, definitionProperty, propertySubject));
+                        graph.Assert(new Triple(propertySubject, definitionPropertyProperty, graph.CreateUriNode("ex:Property")));
+                        graph.Assert(new Triple(propertySubject, definitionNamePropertyProperty, graph.CreateLiteralNode(propertyName)));
                     }
                 }
             }
