@@ -156,6 +156,55 @@ class Program
             }
         }
 
+        if (swaggerObject.ContainsKey("securityDefinitions"))
+        {
+            foreach (var securityDefinitionProperty in swaggerObject["securityDefinitions"].Children<JProperty>())
+            {
+                string securityDefinitionName = securityDefinitionProperty.Name;
+                JObject securityDefinitionObject = (JObject)securityDefinitionProperty.Value;
+
+                string securityDefinitionUriString = "http://example.org/securityDefinition/" + securityDefinitionName;
+                INode securityDefinitionSubject = graph.CreateUriNode(new Uri(securityDefinitionUriString));
+
+                graph.Assert(new Triple(securityDefinitionSubject, graph.CreateUriNode("rdf:type"), graph.CreateUriNode("ex:SecurityDefinition")));
+                graph.Assert(new Triple(securityDefinitionSubject, graph.CreateUriNode("rdfs:label"), graph.CreateLiteralNode(securityDefinitionName)));
+
+                foreach (var property in securityDefinitionObject.Properties())
+                {
+                    string propertyName = property.Name;
+                    JToken propertyValue = property.Value;
+
+                    string propertyUriString = securityDefinitionUriString + "#" + propertyName;
+                    INode propertySubject = graph.CreateUriNode(new Uri(propertyUriString));
+
+                    graph.Assert(new Triple(propertySubject, graph.CreateUriNode("rdf:type"), graph.CreateUriNode("ex:Property")));
+                    graph.Assert(new Triple(propertySubject, graph.CreateUriNode("rdfs:label"), graph.CreateLiteralNode(propertyName)));
+
+                    if (propertyValue.Type == JTokenType.String)
+                    {
+                        graph.Assert(new Triple(securityDefinitionSubject, propertySubject, graph.CreateLiteralNode(propertyValue.ToString())));
+                    }
+                    else if (propertyValue.Type == JTokenType.Object)
+                    {
+                        foreach (var nestedProperty in propertyValue.Children<JProperty>())
+                        {
+                            string nestedPropertyName = nestedProperty.Name;
+                            string nestedPropertyValue = nestedProperty.Value.ToString();
+
+                            INode nestedPropertySubject = graph.CreateUriNode(new Uri(propertyUriString + "#" + nestedPropertyName));
+
+                            graph.Assert(new Triple(securityDefinitionSubject, propertySubject, nestedPropertySubject));
+                            graph.Assert(new Triple(nestedPropertySubject, graph.CreateUriNode("rdfs:label"), graph.CreateLiteralNode(nestedPropertyName)));
+                            graph.Assert(new Triple(nestedPropertySubject, graph.CreateUriNode("ex:hasValue"), graph.CreateLiteralNode(nestedPropertyValue)));
+
+                        }
+                    }
+                }
+            }
+        }
+
+
+
         if (swaggerObject.ContainsKey("definitions"))
         {
             foreach (var definitionProperty in swaggerObject["definitions"].Children<JProperty>())
@@ -163,22 +212,18 @@ class Program
                 string definitionName = definitionProperty.Name;
                 JObject definitionObject = (JObject)definitionProperty.Value;
 
-                // Create a URI for the definition
                 string definitionUriString = "http://example.org/definition/" + definitionName;
                 INode definitionSubject = graph.CreateUriNode(new Uri(definitionUriString));
 
-                // Check if the "properties" property exists in the definitionObject
                 if (definitionObject.ContainsKey("properties"))
                 {
                     foreach (var property in definitionObject["properties"].Children<JProperty>())
                     {
                         string propertyName = property.Name;
 
-                        // Create a URI for the property within the definition
                         string propertyUriString = definitionUriString + "#" + propertyName;
                         INode propertySubject = graph.CreateUriNode(new Uri(propertyUriString));
 
-                        // Create RDF triples for the property
                         graph.Assert(new Triple(definitionSubject, graph.CreateUriNode("ex:hasProperty"), propertySubject));
                         graph.Assert(new Triple(propertySubject, graph.CreateUriNode("rdf:type"), graph.CreateUriNode("ex:Property")));
                         graph.Assert(new Triple(propertySubject, graph.CreateUriNode("rdfs:label"), graph.CreateLiteralNode(propertyName)));
