@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using VDS.RDF;
 using VDS.RDF.Writing;
 using StringWriter = System.IO.StringWriter;
+using System.Reflection;
 
 class Program
 {
@@ -36,7 +37,9 @@ class Program
             ["delete"] = "ex:HasDeleteMethod",
             ["consumes"] = "ex:Consumes",
             ["produces"] = "ex:Produces",
-            ["operationId"] = "ex:HasOperationId" 
+            ["operationId"] = "ex:HasOperationId",
+            ["security"] = "ex:HasSecurity",
+            ["scopes"] = "ex:HasSecurityScope"
         };
 
         // Create a JSON-LD context node and set it as the default context
@@ -51,7 +54,9 @@ class Program
         INode descriptionProperty = graph.CreateUriNode("ex:HasDescription");
         INode consumesProperty = graph.CreateUriNode("ex:Consumes");
         INode producesProperty = graph.CreateUriNode("ex:Produces");
-        INode operationIdProperty = graph.CreateUriNode("ex:HasOperationId"); 
+        INode operationIdProperty = graph.CreateUriNode("ex:HasOperationId");
+        INode securityProperty = graph.CreateUriNode("ex:HasSecurity");
+        INode scopeProperty = graph.CreateUriNode("ex:SecurityScope");
 
         if (swaggerObject.ContainsKey("tags"))
         {
@@ -91,6 +96,7 @@ class Program
                 string methodName = System.Text.RegularExpressions.Regex.Unescape(method.Name);
                 string methodType = method.Name.ToLower();
 
+                // Tags
                 var tagsArray = method.Value["tags"]?.ToObject<string[]>();
                 if (tagsArray != null)
                 {
@@ -103,6 +109,7 @@ class Program
                     }
                 }
 
+                // Summary
                 string summary = method.Value["summary"]?.ToObject<string>();
                 if (!string.IsNullOrEmpty(summary))
                 {
@@ -111,6 +118,7 @@ class Program
                     graph.Assert(new Triple(summarySubject, summaryProperty, summaryObj));
                 }
 
+                // Description
                 string description = method.Value["description"]?.ToObject<string>();
                 if (!string.IsNullOrEmpty(description))
                 {
@@ -119,6 +127,7 @@ class Program
                     graph.Assert(new Triple(descriptionSubject, descriptionProperty, descriptionObj));
                 }
 
+                // Consumes
                 var consumesArray = method.Value["consumes"]?.ToObject<string[]>();
                 if (consumesArray != null)
                 {
@@ -130,6 +139,7 @@ class Program
                     }
                 }
 
+                // Produces
                 var producesArray = method.Value["produces"]?.ToObject<string[]>();
                 if (producesArray != null)
                 {
@@ -141,6 +151,7 @@ class Program
                     }
                 }
 
+                // OperationId
                 string operationId = method.Value["operationId"]?.ToObject<string>();
                 if (!string.IsNullOrEmpty(operationId))
                 {
@@ -148,6 +159,35 @@ class Program
                     INode operationIdObj = graph.CreateLiteralNode(operationId);
                     graph.Assert(new Triple(operationIdSubject, operationIdProperty, operationIdObj));
                 }
+
+                // Security
+                if (method.Value["security"]?.ToObject<JArray>() != null)
+                {
+                    foreach (var securityItem in method.Value["security"])
+                    {
+                        foreach (var securityKey in securityItem.Children<JProperty>())
+                        {
+                            string securityScheme = securityKey.Name;
+
+                            // Determine the structure of securityKey.Value and access its properties accordingly.
+                            // You might need to inspect securityKey.Value and adapt the code accordingly.
+                            // For example, if securityKey.Value is an array of strings, you can access them like this:
+                            var securityScopes = securityKey.Value.Select(token => token.Value<string>()).ToArray();
+
+                            INode securitySubject = graph.CreateUriNode(new Uri(pathUri + "#" + methodName));
+
+                            // Create RDF triples for security schemes and their scopes
+                            graph.Assert(new Triple(securitySubject, securityProperty, graph.CreateLiteralNode(securityScheme)));
+
+                            foreach (var scope in securityScopes)
+                            {
+                                INode scopeObj = graph.CreateLiteralNode(scope);
+                                graph.Assert(new Triple(securitySubject, scopeProperty, scopeObj));
+                            }
+                        }
+                    }
+                }
+
 
                 subject = graph.CreateUriNode(new Uri(pathUri + "#" + methodName));
                 obj = graph.CreateUriNode(new Uri("http://example.org/" + methodType));
@@ -184,10 +224,8 @@ class Program
                         graph.Assert(new Triple(propertySubject, graph.CreateUriNode("rdfs:label"), graph.CreateLiteralNode(propertyName)));
                     }
                 }
-
             }
         }
-
 
         // Serialize the RDF graph to the desired format (e.g., Turtle)
         StringWriter sw = new StringWriter();
