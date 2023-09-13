@@ -26,8 +26,6 @@ class Program
         {
             ["@vocab"] = "http://example.org/",
             ["tags"] = "ex:IsTag",
-            ["name"] = "ex:tagName",
-            ["description"] = "ex:tagDescription",
             ["schemes"] = "ex:IsScheme",
             ["paths"] = "ex:HasPath",
             ["summary"] = "ex:HasSummary",
@@ -41,17 +39,10 @@ class Program
             ["operationId"] = "ex:HasOperationId",
             ["security"] = "ex:HasSecurity",
             ["scopes"] = "ex:HasSecurityScope",
-            ["name"] = "ex:schemeName",
             ["definitions"] = "ex:IsDefinition",
             ["securityDefinitions"] = "ex:IsSecurityDefinition",
-            ["description"] ="ex:TagDescription",
-            ["name"]="ex:SchemeName",
-            ["type"]="ex:SecurityDefinitionsType",
-            ["name"] = "ex:SecurityDefinitionsName",
-            ["name"] = "ex:SecurityDefinitionsPropertyName",
-            ["property"] = "ex:SecurityDefinitionsPropertyValue",
-            ["property"] = "ex:DefinitionProperty",
-            ["property"]= "ex:DefinitionNameProperty"
+            ["type"]="ex:HasType",
+            ["properties"] = "ex:HasProperty",
     };
 
         // Create a JSON-LD context node and set it as the default context
@@ -73,15 +64,12 @@ class Program
         INode operationIdProperty = graph.CreateUriNode("ex:HasOperationId");
         INode securityProperty = graph.CreateUriNode("ex:HasSecurity");
         INode scopeProperty = graph.CreateUriNode("ex:SecurityScope");
-        INode tagNameProperty = graph.CreateUriNode("ex:TagName");
-        INode tagDescriptionProperty = graph.CreateUriNode("ex:TagDescription");
-        INode schemeNameProperty = graph.CreateUriNode("ex:SchemeName");
-        INode securityDefinitionsTypeProperty = graph.CreateUriNode("ex:SecurityDefinitionsType");
+        INode nameProperty = graph.CreateUriNode("ex:HasName");
+        INode typeProperty = graph.CreateUriNode("ex:HasType");
         INode securityDefinitionsNameProperty = graph.CreateUriNode("ex:SecurityDefinitionsName");
-        INode securityDefinitionsPropertyNameProperty = graph.CreateUriNode("ex:SecurityDefinitionsPropertyName");
-        INode securityDefinitionsPropertyValueProperty = graph.CreateUriNode("ex:SecurityDefinitionsPropertyValue");
-        INode definitionPropertyProperty = graph.CreateUriNode("ex:DefinitionProperty");
-        INode definitionNamePropertyProperty = graph.CreateUriNode("ex:DefinitionNameProperty");
+        INode valueProperty = graph.CreateUriNode("ex:HasValue");
+        INode propertyProperty = graph.CreateUriNode("ex:HasProperty");
+     
 
         if (swaggerObject.ContainsKey("tags"))
         {
@@ -93,8 +81,8 @@ class Program
                 INode tagSubject = graph.CreateUriNode(tagUri);
 
                 graph.Assert(new Triple(tagSubject, tagsProperty, graph.CreateUriNode("ex:Tag")));
-                graph.Assert(new Triple(tagSubject, tagNameProperty, graph.CreateLiteralNode(tagName)));
-                graph.Assert(new Triple(tagSubject, tagDescriptionProperty, graph.CreateLiteralNode(tagDescription)));
+                graph.Assert(new Triple(tagSubject, nameProperty, graph.CreateLiteralNode(tagName)));
+                graph.Assert(new Triple(tagSubject, descriptionProperty, graph.CreateLiteralNode(tagDescription)));
             }
         }
 
@@ -107,7 +95,7 @@ class Program
                 INode schemeSubject = graph.CreateUriNode(schemeUri);
 
                 graph.Assert(new Triple(schemeSubject, schemeProperty, graph.CreateUriNode("ex:Scheme")));
-                graph.Assert(new Triple(schemeSubject, schemeNameProperty, graph.CreateLiteralNode(schemeName)));
+                graph.Assert(new Triple(schemeSubject, nameProperty, graph.CreateLiteralNode(schemeName)));
             }
         }
 
@@ -234,7 +222,7 @@ class Program
                 INode securityDefinitionSubject = graph.CreateUriNode(new Uri(securityDefinitionUriString));
 
                 graph.Assert(new Triple(securityDefinitionSubject, securityDefinitionsProperty, graph.CreateUriNode("ex:SecurityDefinition")));
-                graph.Assert(new Triple(securityDefinitionSubject, securityDefinitionsNameProperty, graph.CreateLiteralNode(securityDefinitionName)));
+                graph.Assert(new Triple(securityDefinitionSubject, nameProperty, graph.CreateLiteralNode(securityDefinitionName)));
 
                 foreach (var property in securityDefinitionObject.Properties())
                 {
@@ -244,8 +232,8 @@ class Program
                     string propertyUriString = securityDefinitionUriString + "#" + propertyName;
                     INode propertySubject = graph.CreateUriNode(new Uri(propertyUriString));
 
-                    graph.Assert(new Triple(propertySubject, securityDefinitionsTypeProperty, graph.CreateUriNode("ex:SecurityDefinitionProperty")));
-                    graph.Assert(new Triple(propertySubject, securityDefinitionsNameProperty, graph.CreateLiteralNode(propertyName)));
+                    graph.Assert(new Triple(propertySubject, typeProperty, graph.CreateUriNode("ex:SecurityDefinitionProperty")));
+                    graph.Assert(new Triple(propertySubject, nameProperty, graph.CreateLiteralNode(propertyName)));
 
                     if (propertyValue.Type == JTokenType.String)
                     {
@@ -261,8 +249,8 @@ class Program
                             INode nestedPropertySubject = graph.CreateUriNode(new Uri(propertyUriString + "#" + nestedPropertyName));
 
                             graph.Assert(new Triple(securityDefinitionSubject, propertySubject, nestedPropertySubject));
-                            graph.Assert(new Triple(nestedPropertySubject, securityDefinitionsPropertyNameProperty, graph.CreateLiteralNode(nestedPropertyName)));
-                            graph.Assert(new Triple(nestedPropertySubject, securityDefinitionsPropertyValueProperty, graph.CreateLiteralNode(nestedPropertyValue)));
+                            graph.Assert(new Triple(nestedPropertySubject, nameProperty, graph.CreateLiteralNode(nestedPropertyName)));
+                            graph.Assert(new Triple(nestedPropertySubject, valueProperty, graph.CreateLiteralNode(nestedPropertyValue)));
 
                         }
                     }
@@ -292,8 +280,8 @@ class Program
                         INode propertySubject = graph.CreateUriNode(new Uri(propertyUriString));
 
                         graph.Assert(new Triple(definitionSubject, definitionProperty, propertySubject));
-                        graph.Assert(new Triple(propertySubject, definitionPropertyProperty, graph.CreateUriNode("ex:Property")));
-                        graph.Assert(new Triple(propertySubject, definitionNamePropertyProperty, graph.CreateLiteralNode(propertyName)));
+                        graph.Assert(new Triple(propertySubject, propertyProperty, graph.CreateUriNode("ex:Property")));
+                        graph.Assert(new Triple(propertySubject, nameProperty, graph.CreateLiteralNode(propertyName)));
                     }
                 }
             }
