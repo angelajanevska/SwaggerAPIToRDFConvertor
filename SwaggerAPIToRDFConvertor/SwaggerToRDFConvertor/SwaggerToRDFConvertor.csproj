@@ -1,10 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>Swagger To RDF Convertor</Title>
+    <PackageTags>swagger; rdf; convertor; api;</PackageTags>
+    <PackageId>swagger-to-rdf</PackageId>
+	  <Authors>angelajanevska</Authors>
   </PropertyGroup>
 
   <ItemGroup>

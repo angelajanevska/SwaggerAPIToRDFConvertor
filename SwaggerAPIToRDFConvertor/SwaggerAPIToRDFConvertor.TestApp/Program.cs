@@ -1,11 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
-using System.IO;
-using Newtonsoft.Json;
 using VDS.RDF;
 using VDS.RDF.Writing;
 using StringWriter = System.IO.StringWriter;
-using System.Reflection;
 using static SwaggerToRDFConvertor.RDFConvertor;
 class Program
 {
@@ -13,8 +9,6 @@ class Program
     {
         Console.Write("Enter the path to the Swagger JSON file: ");
         string filePath = Console.ReadLine();
-
-        //string swaggerJson = File.ReadAllText("swagger.json");
 
         try
         {
@@ -40,7 +34,6 @@ class Program
         }
         catch (Exception ex)
         {
-            // Handle exceptions here, you can log the error or take appropriate actions
             Console.WriteLine("Error occurred: " + ex.Message);
         }
     }

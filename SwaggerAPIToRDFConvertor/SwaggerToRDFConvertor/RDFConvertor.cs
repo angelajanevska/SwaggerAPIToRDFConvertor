@@ -202,9 +202,6 @@ namespace SwaggerToRDFConvertor
                                 {
                                     string securityScheme = securityKey.Name;
 
-                                    // Determine the structure of securityKey.Value and access its properties accordingly.
-                                    // You might need to inspect securityKey.Value and adapt the code accordingly.
-                                    // For example, if securityKey.Value is an array of strings, you can access them like this:
                                     var securityScopes = securityKey.Value.Select(token => token.Value<string>()).ToArray();
 
                                     INode securitySubject = graph.CreateUriNode(new Uri(pathUri + "#" + methodName));
@@ -310,7 +307,6 @@ namespace SwaggerToRDFConvertor
             }
             catch (Exception ex)
             {
-
                 Console.WriteLine("Error occurred in converting the swagger api to rdf: " + ex.Message);
                 return null;
             }
