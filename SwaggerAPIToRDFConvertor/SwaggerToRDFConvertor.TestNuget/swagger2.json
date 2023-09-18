@@ -1,0 +1,1837 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Service for managing Rever returns",
+    "version": "1.0",
+    "title": "Rever Returns Public API",
+    "contact": {
+      "name": "contact@itsrever.com"
+    }
+  },
+  "host": "returns-api.byrever.com",
+  "basePath": "/v1/returns/",
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/{ecommerceID}/calculate": {
+      "post": {
+        "tags": [
+          "returns"
+        ],
+        "summary": "Calculating the amounts of a return process",
+        "description": "Method for calculating the line items and totals of a return process",
+        "operationId": "calculate",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "ecommerceID",
+            "in": "path",
+            "description": "E-commerce ID is required",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "calculate_data",
+            "description": "Calculate data is required",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/api.CalculateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/api.CalculateResponse"
+            }
+          },
+          "400": {
+            "description": "Validation error in the request"
+          },
+          "404": {
+            "description": "The e-commerce ID didn't match an existing e-commerce"
+          },
+          "419": {
+            "description": "The signature of at least one object has expired (more than 15 minutes)"
+          },
+          "500": {
+            "description": "generic server error"
+          }
+        }
+      }
+    },
+    "/{ecommerceID}/countries": {
+      "get": {
+        "tags": [
+          "locations"
+        ],
+        "summary": "Retrieves a list of countries",
+        "description": "Retrieves a list of countries",
+        "operationId": "Countries",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "ecommerceID",
+            "in": "path",
+            "description": "E-commerce ID is required",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/locations.Country"
+              }
+            }
+          },
+          "500": {
+            "description": "generic server error"
+          }
+        }
+      }
+    },
+    "/{ecommerceID}/countries/{countryCode}/provinces": {
+      "get": {
+        "tags": [
+          "locations"
+        ],
+        "summary": "Retrieves a list of provinces given a Country Code",
+        "description": "Retrieves a list of provinces given a Country Code",
+        "operationId": "Provinces",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "ecommerceID",
+            "in": "path",
+            "description": "E-commerce ID is required",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "countryCode",
+            "in": "path",
+            "description": "country code is required",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/api.ProvincesResponse"
+            }
+          },
+          "404": {
+            "description": "The countryCode didn't match any country"
+          },
+          "500": {
+            "description": "generic server error"
+          }
+        }
+      }
+    },
+    "/{ecommerceID}/eligibility": {
+      "post": {
+        "tags": [
+          "returns"
+        ],
+        "summary": "Computes the return eligibility of a given order for a specific e-commerce",
+        "description": "Computes the return eligibility of a given order for a specific e-commerce",
+        "operationId": "Eligibility",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "EligibilityRequest",
+            "description": "Body request is required",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/api.EligibilityRequest"
+            }
+          },
+          {
+            "name": "ecommerceID",
+            "in": "path",
+            "description": "E-commerce ID is required",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/api.EligibilityResponse"
+            }
+          },
+          "404": {
+            "description": "The e-commerce, the order ID and email didn't match an order"
+          },
+          "406": {
+            "description": "Not Acceptable",
+            "schema": {
+              "$ref": "#/definitions/api.StandardBackendResponse"
+            }
+          },
+          "500": {
+            "description": "generic server error"
+          }
+        }
+      }
+    },
+    "/{ecommerceID}/get_return_methods": {
+      "post": {
+        "tags": [
+          "ReturnMethods"
+        ],
+        "summary": "Retrieves a list valid ReturnMethods given the input",
+        "description": "retrieves a list of valid return methods",
+        "operationId": "ReturnMethods",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "GetReturnMethodsRequest",
+            "description": "Body request is required",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/api.GetReturnMethodsRequest"
+            }
+          },
+          {
+            "name": "ecommerceID",
+            "in": "path",
+            "description": "E-commerce ID is required",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/api.GetReturnMethodsResponse"
+            }
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "generic server error"
+          }
+        }
+      }
+    },
+    "/{ecommerceID}/process": {
+      "post": {
+        "tags": [
+          "returns"
+        ],
+        "summary": "Start a return process",
+        "description": "Method for starting a return process given the return summary",
+        "operationId": "process",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "ecommerceID",
+            "in": "path",
+            "description": "E-commerce ID is required",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "process_data",
+            "description": "Return data is required",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/api.ProcessRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/api.ProcessStartResponse"
+            }
+          },
+          "400": {
+            "description": "Validation error in the request"
+          },
+          "404": {
+            "description": "The e-commerce ID didn't match an existing e-commerce"
+          },
+          "406": {
+            "description": "Validation error in the request"
+          },
+          "409": {
+            "description": "A conflicting return process was already started for this order"
+          },
+          "419": {
+            "description": "The signature of at least one object has expired (more than 15 minutes)"
+          },
+          "500": {
+            "description": "generic server error"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "api.CalculateRequest": {
+      "type": "object",
+      "required": [
+        "returned_items",
+        "signed_order_raw"
+      ],
+      "properties": {
+        "drop_off_address": {
+          "description": "address where the items have to be dropped off",
+          "$ref": "#/definitions/models.Address"
+        },
+        "exchange_shipping_address": {
+          "description": "address where to send the exchanged items",
+          "$ref": "#/definitions/models.Address"
+        },
+        "exchanged_items": {
+          "type": "array",
+          "description": "returned items will be partly (fully) covered with this exchanged ones",
+          "items": {
+            "$ref": "#/definitions/api.ExchangedItem"
+          }
+        },
+        "pickup_address": {
+          "description": "address where the items have to be picked up",
+          "$ref": "#/definitions/models.Address"
+        },
+        "pickup_ranges": {
+          "type": "array",
+          "description": "pickup ranges when the customer is available for pickup",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "return_method": {
+          "type": "integer",
+          "description": "Return method"
+        },
+        "returned_items": {
+          "type": "array",
+          "description": "Items to be returned",
+          "items": {
+            "$ref": "#/definitions/api.ReturnedItem"
+          }
+        },
+        "signed_configuration_raw": {
+          "type": "string",
+          "description": "Configuration as strictly received in /v1/returns/{ecommerceID}/eligibility"
+        },
+        "signed_order_raw": {
+          "type": "string",
+          "description": "Order being returned as strictly received in /v1/returns/{ecommerceID}/eligibility"
+        },
+        "user_preferred_lang": {
+          "type": "string",
+          "description": "User preferred language (es, es-ES, en, en-GB...)\nthe backend might not support every language and there is a default fallback"
+        },
+        "user_selected_carrier": {
+          "type": "string",
+          "description": "What logistics carrier the user selected along with the ReturnMethod. The options\nwere listed in the get_return_methods call"
+        },
+        "user_selected_provider": {
+          "type": "string",
+          "description": "What logistics Provider the user selected along with the ReturnMethod"
+        }
+      }
+    },
+    "api.CalculateResponse": {
+      "type": "object",
+      "properties": {
+        "signed_summary": {
+          "$ref": "#/definitions/api.SignedReturnSummary"
+        },
+        "signed_summary_raw": {
+          "type": "string"
+        }
+      }
+    },
+    "api.Configuration": {
+      "type": "object",
+      "properties": {
+        "refund": {
+          "description": "If present, the refund can follow these rules",
+          "$ref": "#/definitions/pb.Refund"
+        },
+        "return_reasons_available": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Configuration that are available to be requested"
+    },
+    "api.EligibilityRequest": {
+      "type": "object",
+      "required": [
+        "customer_printed_order_id"
+      ],
+      "properties": {
+        "customer_printed_order_id": {
+          "type": "string",
+          "description": "The order ID as the customer sees it in the printed receipt, email or application. Required."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email of the user that made the purchase as per the E-commerce records(must match)"
+        },
+        "user_preferred_lang": {
+          "type": "string",
+          "description": "User preferred language (es, es-ES, en, en-GB...)\nthe backend might not support every language and there is a default fallback"
+        }
+      }
+    },
+    "api.EligibilityResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "description": "Error details -- only present if the request payload was correct but there\nwas an error processing the request",
+          "$ref": "#/definitions/api.ErrorResponse"
+        },
+        "return_processes": {
+          "type": "array",
+          "description": "Return processes completed or not associated",
+          "items": {
+            "$ref": "#/definitions/models.ReturnProcess"
+          }
+        },
+        "signed_configuration": {
+          "description": "SignedConfiguration configuration",
+          "$ref": "#/definitions/api.SignedConfiguration"
+        },
+        "signed_configuration_raw": {
+          "type": "string",
+          "description": "SignedConfiguration configuration"
+        },
+        "signed_order": {
+          "description": "Order retrieved from the e-commerce and signed to prevent tampering",
+          "$ref": "#/definitions/api.SignedOrder"
+        },
+        "signed_order_raw": {
+          "type": "string",
+          "description": "Signature data as string"
+        }
+      }
+    },
+    "api.ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "English description of the error"
+        },
+        "err_code": {
+          "type": "string",
+          "description": "Error code (unique) for this error situation"
+        }
+      },
+      "description": "Code and user friendly description of the error."
+    },
+    "api.ExchangedItem": {
+      "type": "object",
+      "required": [
+        "product_id"
+      ],
+      "properties": {
+        "comment": {
+          "type": "string",
+          "description": "Optional Comment"
+        },
+        "original_variation_id": {
+          "type": "string",
+          "description": "OriginalVariationId the id of variation i want to exchange for this one"
+        },
+        "product_id": {
+          "type": "string",
+          "description": "ID of the product as returned to the /v1/returns/{ecommerceID}/products method"
+        },
+        "quantity": {
+          "type": "integer",
+          "description": "must be positive > 0"
+        },
+        "variation_id": {
+          "type": "string",
+          "description": "Optional: ID of the product variation as returned on the /v1/returns/{ecommerceID}/products method"
+        }
+      }
+    },
+    "api.GetReturnMethodsRequest": {
+      "type": "object",
+      "required": [
+        "return_address",
+        "returned_items",
+        "signed_order_raw"
+      ],
+      "properties": {
+        "return_address": {
+          "$ref": "#/definitions/models.Address"
+        },
+        "returned_items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/api.ReturnedItem"
+          }
+        },
+        "signed_order_raw": {
+          "type": "string",
+          "description": "Order being returned as strictly received in /v1/returns/{ecommerceID}/eligibility\nOptional for the moment, will change to required when the frontend is ready"
+        }
+      }
+    },
+    "api.GetReturnMethodsResponse": {
+      "type": "object",
+      "properties": {
+        "return_methods": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/returnmethods.ReturnMethod"
+          }
+        }
+      }
+    },
+    "api.ProcessRequest": {
+      "type": "object",
+      "properties": {
+        "bban": {
+          "type": "string",
+          "description": "BBAN where return the cash without IBAN"
+        },
+        "country_code": {
+          "type": "string",
+          "description": "CountryCode on the refund will be"
+        },
+        "iban": {
+          "type": "string",
+          "description": "IBAN where return the cash"
+        },
+        "signed_configuration_raw": {
+          "type": "string",
+          "description": "Configuration as strictly received in /v1/returns/{ecommerceID}/eligibility"
+        },
+        "signed_order_raw": {
+          "type": "string",
+          "description": "Signature data as string as strictly received in /v1/returns/{ecommerceID}/eligibility"
+        },
+        "signed_return_summary_raw": {
+          "type": "string",
+          "description": "Signature data as string as strictly received in /v1/returns/{ecommerceID}/calculate"
+        },
+        "swift": {
+          "type": "string",
+          "description": "SWIFT where return the cash without IBAN"
+        },
+        "user_preferred_lang": {
+          "type": "string",
+          "description": "User preferred language (es, es-ES, en, en-GB...)\nthe backend might not support every language and there is a default fallback"
+        }
+      }
+    },
+    "api.ProcessStartResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "description": "Error details -- only present if the request payload was correct but there\nwas an error processing the request",
+          "$ref": "#/definitions/api.ErrorResponse"
+        },
+        "pid": {
+          "type": "string",
+          "description": "Return Process ID"
+        }
+      }
+    },
+    "api.ProvinceData": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "api.ProvincesResponse": {
+      "type": "object",
+      "properties": {
+        "options": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/api.ProvinceData"
+          }
+        }
+      }
+    },
+    "api.ReturnSummary": {
+      "type": "object",
+      "required": [
+        "line_items"
+      ],
+      "properties": {
+        "bank_transfer_amount": {
+          "type": "integer",
+          "description": "Total instant_refund amount\nCan partly or fully cover the amount of the refund\nFollows the Order MoneyFormat\nTotal bank_tranfer_refund amount\nCan partly or fully cover the amount of the refund\nFollows the Order MoneyFormat"
+        },
+        "coupon_refund_amount": {
+          "type": "integer",
+          "description": "Total amount that is refunded using coupons\nCan partly or fully cover the amount of the refund\nFollows the Order MoneyFormat\nDeprecated: use PromocodeRefundAmount instead"
+        },
+        "drop_off_address": {
+          "description": "Where the order should be dropped off (optional)",
+          "$ref": "#/definitions/models.Address"
+        },
+        "exchange_flow": {
+          "type": "integer",
+          "description": "Exchange flow"
+        },
+        "exchange_refund_amount": {
+          "type": "integer",
+          "description": "Total amount (value of) exchanged items --> specified in exchanged items\nCan partly or fully cover the amount of the refund\nFollows the Order MoneyFormat"
+        },
+        "exchange_shipping_address": {
+          "description": "address where to send the exchanged items (optional)",
+          "$ref": "#/definitions/models.Address"
+        },
+        "exchanged_items": {
+          "type": "array",
+          "description": "returned items will be partly (fully) covered with this exchanged ones",
+          "items": {
+            "$ref": "#/definitions/api.ExchangedItem"
+          }
+        },
+        "gift_refund_amount": {
+          "type": "integer",
+          "description": "Total amount that is refunded using gift cards\nCan partly or fully cover the amount of the refund\nFollows the Order MoneyFormat"
+        },
+        "line_items": {
+          "type": "array",
+          "description": "Items to be returned",
+          "items": {
+            "$ref": "#/definitions/models.ReturnLineItem"
+          }
+        },
+        "original_pm_refund_amount": {
+          "type": "integer",
+          "description": "Amount to be returned upon goods verified in warehouse\nCan partly or fully cover the amount of the refund\nFollows the Order MoneyFormat\nAmount to be returned in original payment method\nCan partly or fully cover the amount of the refund\nFollows the Order MoneyFormat"
+        },
+        "pickup_address": {
+          "description": "Where the order should be picked up (optional)",
+          "$ref": "#/definitions/models.Address"
+        },
+        "pickup_ranges": {
+          "type": "array",
+          "description": "Pickup ranges when the customer is available for pickup",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "promocode_refund_amount": {
+          "type": "integer",
+          "description": "Total amount that is refunded using promocode\nCan partly or fully cover the amount of the refund\nFollows the Order MoneyFormat"
+        },
+        "return_method": {
+          "type": "integer",
+          "description": "Return method"
+        },
+        "user_selected_carrier": {
+          "type": "string",
+          "description": "What logistics carrier the user selected along with the ReturnMethod. The options\nwere listed in the get_return_methods call"
+        },
+        "user_selected_provider": {
+          "type": "string",
+          "description": "What logistics Provider the user selected along with the ReturnMethod"
+        }
+      }
+    },
+    "api.ReturnedItem": {
+      "type": "object",
+      "required": [
+        "line_item_id",
+        "product_return_reason",
+        "quantity"
+      ],
+      "properties": {
+        "action": {
+          "type": "integer",
+          "description": "Action return or exchange"
+        },
+        "comment": {
+          "type": "string",
+          "description": "Comment about the return"
+        },
+        "line_item_id": {
+          "type": "string",
+          "description": "Line Item ID from the Order Line Items --> PlatformID"
+        },
+        "product_return_reason": {
+          "type": "string",
+          "description": "Reason to return"
+        },
+        "quantity": {
+          "type": "integer",
+          "description": "must be positive > 0"
+        },
+        "refund_payment_method": {
+          "type": "integer",
+          "description": "RefundPaymentMethod for the item"
+        }
+      }
+    },
+    "api.SignedConfiguration": {
+      "type": "object",
+      "properties": {
+        "configuration": {
+          "description": "Information about the configuration",
+          "$ref": "#/definitions/api.Configuration"
+        },
+        "signature": {
+          "type": "string",
+          "description": "Signature of the Configuration field, to prevent tampering"
+        },
+        "signature_key": {
+          "type": "string",
+          "description": "The identifier of the key used to sign the data"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Time of the server / response"
+        }
+      },
+      "description": "Description of configuration with a signature to verify its contents"
+    },
+    "api.SignedOrder": {
+      "type": "object",
+      "properties": {
+        "order": {
+          "description": "Order retrieved from the e-commerce. If empty, then it's not found",
+          "$ref": "#/definitions/models.Order"
+        },
+        "signature": {
+          "type": "string",
+          "description": "Signature of the order, to prevent tampering"
+        },
+        "signature_key": {
+          "type": "string",
+          "description": "The identifier of the key used to sign the data"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Time of the server / response (RFC3339)"
+        }
+      },
+      "description": "Wrapped Order with a signature to verify its contents"
+    },
+    "api.SignedReturnSummary": {
+      "type": "object",
+      "properties": {
+        "return_summary": {
+          "description": "Information about the return summary",
+          "$ref": "#/definitions/api.ReturnSummary"
+        },
+        "signature": {
+          "type": "string",
+          "description": "Signature of the ReturnSummary field, to prevent tampering"
+        },
+        "signature_key": {
+          "type": "string",
+          "description": "The identifier of the key used to sign the data"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Time of the server / response"
+        }
+      },
+      "description": "A return process  with a signature to verify its contents"
+    },
+    "api.StandardBackendResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "description": "Error details -- only present if the request payload was correct but there\nwas an error processing the request",
+          "$ref": "#/definitions/api.ErrorResponse"
+        }
+      }
+    },
+    "locations.Country": {
+      "type": "object",
+      "properties": {
+        "iso": {
+          "type": "string"
+        },
+        "iso_3": {
+          "type": "string"
+        },
+        "localname": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "nicename": {
+          "type": "string"
+        },
+        "numcode": {
+          "type": "integer"
+        },
+        "phonecode": {
+          "type": "integer"
+        }
+      }
+    },
+    "models.Address": {
+      "type": "object",
+      "properties": {
+        "address_line_1": {
+          "type": "string"
+        },
+        "address_line_2": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "company": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "country_code": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "postcode": {
+          "type": "string"
+        },
+        "rever_id": {
+          "type": "string",
+          "description": "Unique ID in the rever platform"
+        },
+        "state_province": {
+          "type": "string"
+        },
+        "state_province_code": {
+          "type": "string"
+        }
+      },
+      "description": "generic address used in many scenarios"
+    },
+    "models.Collection": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "models.Comment": {
+      "type": "object",
+      "properties": {
+        "extra": {
+          "type": "string",
+          "description": "Extra comments/data field text -- any format"
+        },
+        "is_manual": {
+          "type": "boolean",
+          "description": "If the comment is manual (by a person) or automatic (by the worfklow)"
+        },
+        "rever_id": {
+          "type": "string",
+          "description": "Id of the comment in rever system"
+        },
+        "text": {
+          "type": "string",
+          "description": "Comment text -- might have markdown text"
+        },
+        "timestamp": {
+          "description": "Time of the commant",
+          "$ref": "#/definitions/timestamppb.Timestamp"
+        },
+        "user": {
+          "type": "string",
+          "description": "User that is related to the comment"
+        }
+      }
+    },
+    "models.Customer": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "rever_id": {
+          "type": "string",
+          "description": "Unique ID in the rever platform"
+        }
+      },
+      "description": "A generic customer in the Rever platform"
+    },
+    "models.LineItemReview": {
+      "type": "object",
+      "properties": {
+        "line_item_id": {
+          "type": "string",
+          "description": "Line item ID"
+        },
+        "reject_reason": {
+          "type": "string",
+          "description": "Reason in case the review is a Reject"
+        },
+        "rever_id": {
+          "type": "string",
+          "description": "ID of the review in our system"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the reviewed item"
+        },
+        "timestamp": {
+          "description": "Time of the review",
+          "$ref": "#/definitions/timestamppb.Timestamp"
+        },
+        "user": {
+          "type": "string",
+          "description": "User that completed the review"
+        }
+      }
+    },
+    "models.MoneyFormat": {
+      "type": "object",
+      "properties": {
+        "amount_multiplied_by": {
+          "type": "integer"
+        },
+        "currency": {
+          "type": "string",
+          "description": "ISO format (EUR, JPY, USD...)"
+        },
+        "currency_symbol": {
+          "type": "string"
+        },
+        "decimal_separator": {
+          "type": "string"
+        },
+        "display_prices_with_taxes": {
+          "type": "boolean"
+        },
+        "is_currency_left_position": {
+          "type": "boolean"
+        },
+        "thousand_separator": {
+          "type": "string"
+        },
+        "visible_number_of_decimals": {
+          "type": "integer"
+        }
+      },
+      "description": "describes how amounts should be displayed in the client side"
+    },
+    "models.NonReturnableItem": {
+      "type": "object",
+      "properties": {
+        "quantity": {
+          "type": "integer"
+        },
+        "reason": {
+          "type": "integer"
+        }
+      }
+    },
+    "models.Order": {
+      "type": "object",
+      "properties": {
+        "billing_address": {
+          "$ref": "#/definitions/models.Address"
+        },
+        "currency_customer": {
+          "type": "string"
+        },
+        "currency_shop": {
+          "type": "string"
+        },
+        "customer": {
+          "$ref": "#/definitions/models.OrderCustomer"
+        },
+        "exchange_rate": {
+          "type": "number"
+        },
+        "identification": {
+          "$ref": "#/definitions/models.OrderIdentification"
+        },
+        "line_items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/models.OrderLineItem"
+          }
+        },
+        "money_format": {
+          "description": "REVER 1.0 (Slice 1)\nTo be deprecated -->",
+          "$ref": "#/definitions/models.MoneyFormat"
+        },
+        "payment_methods": {
+          "type": "array",
+          "description": "Payment methods used to pay the order in the e-commerce",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "retrieval": {
+          "$ref": "#/definitions/models.OrderRetrieval"
+        },
+        "shipping_address": {
+          "$ref": "#/definitions/models.Address"
+        },
+        "shipping_method_id": {
+          "type": "string",
+          "description": "deprecated"
+        },
+        "status": {
+          "$ref": "#/definitions/models.OrderStatus"
+        }
+      },
+      "description": "The model for an order from any e-commerce (platform)"
+    },
+    "models.OrderCustomer": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        }
+      },
+      "description": "Customer associated to the order"
+    },
+    "models.OrderIdentification": {
+      "type": "object",
+      "properties": {
+        "customer_printed_order_id": {
+          "type": "string",
+          "description": "In Shopify GET https:/texanssaddles-com.myshopify.com/admin/orders.json?name=1066\nShopify --> The order name, generated by combining the order_number\nwith the order prefix and suffix that are set in the merchant's general settings.\nThis is different from the id property, which is the ID of the order used by the API.\nThis field can also be set by the API to be any string value.\nIn WooCommerce, users can install a plugin that changes how the field number\nis generated so then id is no longer equal to number\nIf id == number then you can retrieve the order with GET /wp-json/wc/v3/orders/<id>\nIf not... there is not a way of retrieving a specific order by number\nmethod --> GET /wp-json/wc/v3/orders and search over the list (!)\nShopify: order_number or name(TODO)  Woo: number"
+        },
+        "ecommerce_id": {
+          "type": "string",
+          "description": "Internal Rever e-commerce_id"
+        },
+        "id": {
+          "type": "string",
+          "description": "Shopify:id   Woo: id --> Not usually visible by end-users.\nUnique identifier in the origin platform"
+        },
+        "platform": {
+          "type": "integer",
+          "description": "Platform from where this order was retrieved"
+        },
+        "rever_id": {
+          "type": "string",
+          "description": "Unique ID in the rever platform"
+        }
+      },
+      "description": "Extended data for identifying an order in any e-commerce"
+    },
+    "models.OrderLineItem": {
+      "type": "object",
+      "properties": {
+        "comment": {
+          "type": "string",
+          "description": "Optional: when a customer send some comments"
+        },
+        "id": {
+          "type": "string",
+          "description": "Id of the line item in the source platform"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the line item (not necessarily the name of the product)"
+        },
+        "non_returnable_items": {
+          "type": "array",
+          "description": "Optional: Information about non-returnable items",
+          "items": {
+            "$ref": "#/definitions/models.NonReturnableItem"
+          }
+        },
+        "product": {
+          "description": "Optional payload of the product (with variations) specified in the field product_id",
+          "$ref": "#/definitions/models.Product"
+        },
+        "product_id": {
+          "type": "string",
+          "description": "to get product details, request the product (API)"
+        },
+        "quantity": {
+          "type": "integer",
+          "description": "number of items of the same product + variant"
+        },
+        "return_reason": {
+          "type": "integer",
+          "description": "deprecated\n\nDeprecated: Marked as deprecated in order.proto."
+        },
+        "rever_id": {
+          "type": "string",
+          "description": "Id of the line item in rever system"
+        },
+        "sku": {
+          "type": "string",
+          "description": "stock-keeping unit (SKU) is a scannable bar code,\nmost often seen printed on product labels in a retail store"
+        },
+        "subtotal": {
+          "type": "integer",
+          "description": "sub total amount of the line following the MoneyFormat of the order\nbefore discounts and taxes\nsubtotal = unit_price * quantity"
+        },
+        "total": {
+          "type": "integer",
+          "description": "total amount of the line following the MoneyFormat of the order\nincluding discounts and tax\ntotal = (subtotal - total_discounts) + total_taxes\nthis is the amount to be refunded (multiplied by items_returned/quantity)"
+        },
+        "total_discounts": {
+          "type": "integer",
+          "description": "total amount of discounts of the line following the MoneyFormat"
+        },
+        "total_taxes": {
+          "type": "integer",
+          "description": "total amount of taxes of the line following the MoneyFormat"
+        },
+        "unit_price": {
+          "type": "integer",
+          "description": "unit price of a single  item (no discounts, no taxes)\nfollows MoneyFormat associated\nWARNING: This price can have roundings as some platforms\nonly share the unit_price + taxes.\nDepending on the use case might be better to use the total directly\nand add/substract taxes/discounts"
+        },
+        "variant_id": {
+          "type": "string",
+          "description": "variant of the product (same ProductID, different Variant)\nwe are allowing only one variant at the moment (one dimension)"
+        },
+        "variant_name": {
+          "type": "string",
+          "description": "Name of the variant"
+        },
+        "weight": {
+          "type": "integer",
+          "description": "weight for products from the order"
+        }
+      },
+      "description": "One of the line items from the Order"
+    },
+    "models.OrderRetrieval": {
+      "type": "object",
+      "properties": {
+        "date": {
+          "description": "The timestamp where this data was retrieved from the corresponding endpoint\nRFC3339 format",
+          "$ref": "#/definitions/timestamppb.Timestamp"
+        },
+        "source": {
+          "type": "string",
+          "description": "Source URL for this order"
+        }
+      },
+      "description": "information on how this order was retrieved"
+    },
+    "models.OrderStatus": {
+      "type": "object",
+      "properties": {
+        "customer_printed_date": {
+          "description": "The date since the returns policy starts counting at\nShopify: processed_at (verify) Woo: date_paid (verify)\nRFC3399 format",
+          "$ref": "#/definitions/timestamppb.Timestamp"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the order. TODO: Available statuses"
+        }
+      },
+      "description": "Order status with time it was considered as PAID -- returns policy"
+    },
+    "models.Product": {
+      "type": "object",
+      "properties": {
+        "categories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/models.ProductCategory"
+          }
+        },
+        "collections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/models.Collection"
+          }
+        },
+        "description": {
+          "type": "string",
+          "description": "Product description"
+        },
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the resource in the source platform"
+        },
+        "images": {
+          "type": "array",
+          "description": "Images associated to the product",
+          "items": {
+            "$ref": "#/definitions/models.ProductImage"
+          }
+        },
+        "money_format": {
+          "description": "format for the amounts",
+          "$ref": "#/definitions/models.MoneyFormat"
+        },
+        "name": {
+          "type": "string",
+          "description": "Product name"
+        },
+        "platform": {
+          "type": "integer",
+          "description": "platform from where this product comes from"
+        },
+        "price": {
+          "type": "integer",
+          "description": "price per unit (following MoneyFormat)"
+        },
+        "short_description": {
+          "type": "string",
+          "description": "Product short description"
+        },
+        "sku": {
+          "type": "string",
+          "description": "unique identifier of the product"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/models.Tag"
+          }
+        },
+        "variants": {
+          "type": "array",
+          "description": "Optional: product variations\nif a line-item references a varition, the attributes of the variation\nhave to be used instead of the ones of the product",
+          "items": {
+            "$ref": "#/definitions/models.ProductVariant"
+          }
+        }
+      },
+      "description": "A product from the e-commerce"
+    },
+    "models.ProductCategory": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "models.ProductImage": {
+      "type": "object",
+      "properties": {
+        "alt": {
+          "type": "string",
+          "description": "Image alternative text"
+        },
+        "name": {
+          "type": "string",
+          "description": "Image name"
+        },
+        "src": {
+          "type": "string",
+          "description": "Image URL"
+        }
+      },
+      "description": "An image from the e-commerce catalog"
+    },
+    "models.ProductOption": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the resource in the source platform"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the option"
+        },
+        "value": {
+          "type": "string",
+          "description": "Value of the option"
+        }
+      }
+    },
+    "models.ProductVariant": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Variant description"
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "enabled or disabled"
+        },
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the resource in the source platform"
+        },
+        "images": {
+          "type": "array",
+          "description": "Images associated to the variant",
+          "items": {
+            "$ref": "#/definitions/models.ProductImage"
+          }
+        },
+        "inventory_quantity": {
+          "type": "integer",
+          "description": "inventory quantity (only check if inventory_enabled is true)"
+        },
+        "is_inventory_enabled": {
+          "type": "boolean",
+          "description": "should be checked before checking quantity"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the variant"
+        },
+        "options": {
+          "type": "array",
+          "description": "The list of options that conforms this variant",
+          "items": {
+            "$ref": "#/definitions/models.ProductOption"
+          }
+        },
+        "price": {
+          "type": "integer",
+          "description": "unit price"
+        },
+        "short_description": {
+          "type": "string",
+          "description": "Variant short description"
+        },
+        "sku": {
+          "type": "string",
+          "description": "unique identifier of the product"
+        },
+        "weight": {
+          "type": "integer",
+          "description": "weight for product"
+        }
+      }
+    },
+    "models.RefundActionConfig": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "integer"
+        },
+        "rever_id": {
+          "type": "string"
+        },
+        "timing": {
+          "type": "integer"
+        }
+      }
+    },
+    "models.RefundPaymentMethodConfig": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "integer"
+        },
+        "rever_id": {
+          "type": "string"
+        },
+        "timing": {
+          "type": "integer"
+        }
+      }
+    },
+    "models.ReturnLineItem": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "integer",
+          "description": "User action with this item"
+        },
+        "comment": {
+          "type": "string",
+          "description": "Return comment"
+        },
+        "id": {
+          "type": "string",
+          "description": "Id of the line item in the source platform"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the line item (not necessarily the name of the product)"
+        },
+        "pending_purchase": {
+          "type": "boolean",
+          "description": "if this line item refers to an item that we need to buy (exchange)"
+        },
+        "product": {
+          "description": "Deprecated: Product is nil outside of Workflow",
+          "$ref": "#/definitions/models.Product"
+        },
+        "product_id": {
+          "type": "string",
+          "description": "to get product details, request the product (API)"
+        },
+        "product_image_url": {
+          "type": "string",
+          "description": "URL of the main image of the product/line-item"
+        },
+        "product_return_reason": {
+          "type": "string",
+          "description": "ProductReturnReason"
+        },
+        "quantity": {
+          "type": "integer",
+          "description": "number of items of the same product + variant"
+        },
+        "refund_payment_method": {
+          "type": "integer",
+          "description": "User refund payment method"
+        },
+        "return_reason": {
+          "type": "integer",
+          "description": "Reason why it's returned\nDeprecated"
+        },
+        "rever_id": {
+          "type": "string",
+          "description": "Id of the line item in rever system"
+        },
+        "reviews": {
+          "type": "array",
+          "description": "Reviews of individual items included in the line item",
+          "items": {
+            "$ref": "#/definitions/models.LineItemReview"
+          }
+        },
+        "sku": {
+          "type": "string",
+          "description": "stock-keeping unit (SKU) is a scannable bar code, most\noften seen printed on product labels in a retail store"
+        },
+        "subtotal": {
+          "type": "integer",
+          "description": "sub total amount of the line following the MoneyFormat of the order\nbefore discounts and taxes\nsubtotal = unit_price * quantity"
+        },
+        "total": {
+          "type": "integer",
+          "description": "total amount of the line following the MoneyFormat of the order\nincluding discounts and tax\ntotal = (subtotal - total_discounts) + total_taxes\nthis is the amount to be refunded (multiplied by items_returned/quantity)"
+        },
+        "total_discounts": {
+          "type": "integer",
+          "description": "total amount of discounts of the line following the MoneyFormat"
+        },
+        "total_taxes": {
+          "type": "integer",
+          "description": "total amount of taxes of the line following the MoneyFormat"
+        },
+        "type": {
+          "type": "string",
+          "description": "Return line item type"
+        },
+        "unit_price": {
+          "type": "integer",
+          "description": "unit price of a single  item (no discounts, no taxes)\nfollows MoneyFormat associated"
+        },
+        "variant_id": {
+          "type": "string",
+          "description": "variant of the product (same ProductID, different Variant)\nwe are allowing only one variant at the moment (one dimension)"
+        },
+        "variant_name": {
+          "type": "string",
+          "description": "Name of the variant"
+        }
+      },
+      "description": "One of the line items in a return process"
+    },
+    "models.ReturnProcess": {
+      "type": "object",
+      "properties": {
+        "ReviewFlow": {
+          "type": "string",
+          "description": "Do not change field name, we have \"ReviewFlow\" in the JSON\nright now instead of `review_flow“.\nReview flow can be manual (MANUAL) or automatic (AUTO)\nIf an item has to be reviewed when reaching the warehouse and the flow is MANUAL,\nthe process will wait for manual input. If AUTO, it will be approved automatically\nprotolint:disable:next FIELD_NAMES_LOWER_SNAKE_CASE"
+        },
+        "action_config": {
+          "type": "array",
+          "description": "protolint:disable:next REPEATED_FIELD_NAMES_PLURALIZED",
+          "items": {
+            "$ref": "#/definitions/models.RefundActionConfig"
+          }
+        },
+        "bank_account_country": {
+          "type": "string",
+          "description": "bank_account_country"
+        },
+        "bban": {
+          "type": "string",
+          "description": "BBAN Basic Bank Account number"
+        },
+        "billing_address": {
+          "description": "Deprecated: it is not stored in the db",
+          "$ref": "#/definitions/models.Address"
+        },
+        "carrier_name": {
+          "type": "string",
+          "description": "the Name of the carrier != provider"
+        },
+        "completed_at": {
+          "description": "When the process was completed",
+          "$ref": "#/definitions/timestamppb.Timestamp"
+        },
+        "currency": {
+          "type": "string",
+          "description": "Return process' currency (in most cases, currency in which the order was paid)"
+        },
+        "currency_shop": {
+          "type": "string",
+          "description": "Shop's default currency"
+        },
+        "customer": {
+          "description": "the customer that ordered the return",
+          "$ref": "#/definitions/models.Customer"
+        },
+        "customer_printed_order_id": {
+          "type": "string",
+          "description": "for searching/information purposes"
+        },
+        "drop_off_address": {
+          "description": "where to drop-off this return",
+          "$ref": "#/definitions/models.Address"
+        },
+        "ecommerce_id": {
+          "type": "string",
+          "description": "Internal Rever e-commerce_id"
+        },
+        "exchange_flow": {
+          "type": "integer"
+        },
+        "exchange_order_number": {
+          "type": "string",
+          "description": "Order number (customer printed) of the order created for the exchange\nTODO: this is going to be deprecated by a Transaction entry\nso that we can treat all of the external operations equally"
+        },
+        "exchange_rate": {
+          "type": "number",
+          "description": "Relation between shop and customer amounts saved in db\nExchange rate = Shop currency amount in DB / Customer currency amount in DB\nExchange rate = (Shop currency real amount * Shop currency amount_multiplied_by)\ndivided by Customer currency real amount * Customer currency amount_multiplied_by)"
+        },
+        "exchange_shipping_address": {
+          "description": "address where to send the exchanged items",
+          "$ref": "#/definitions/models.Address"
+        },
+        "group": {
+          "type": "string",
+          "description": "Group"
+        },
+        "iban": {
+          "type": "string",
+          "description": "IBAN"
+        },
+        "internal_comments": {
+          "type": "array",
+          "description": "Comments associated to the return process (internal -- only REVER should see them)",
+          "items": {
+            "$ref": "#/definitions/models.Comment"
+          }
+        },
+        "is_testing": {
+          "type": "boolean",
+          "description": "if the return process is a test one or not"
+        },
+        "last_known_shipping_status": {
+          "type": "integer",
+          "description": "last communicated status of the shipping"
+        },
+        "line_items": {
+          "type": "array",
+          "description": "Return LineItems --> the items being returned + lines\nrelated to the balance (example: shipping cost)",
+          "items": {
+            "$ref": "#/definitions/models.ReturnLineItem"
+          }
+        },
+        "logistic_order_id": {
+          "type": "string"
+        },
+        "order": {
+          "description": "Deprecated: Order is nil outside of Workflow",
+          "$ref": "#/definitions/models.Order"
+        },
+        "order_id": {
+          "type": "string",
+          "description": "Order ID in the source platform"
+        },
+        "order_purchased_at": {
+          "description": "When the order was purchased",
+          "$ref": "#/definitions/timestamppb.Timestamp"
+        },
+        "payment_method_config": {
+          "type": "array",
+          "description": "Refund method and action configurations\nprotolint:disable:next REPEATED_FIELD_NAMES_PLURALIZED",
+          "items": {
+            "$ref": "#/definitions/models.RefundPaymentMethodConfig"
+          }
+        },
+        "pickup_address": {
+          "description": "where to pick-up this return",
+          "$ref": "#/definitions/models.Address"
+        },
+        "pickup_ranges": {
+          "type": "array",
+          "description": "Pickup ranges for deliver the returns",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "platform": {
+          "type": "integer",
+          "description": "Platform from where this order was retrieved"
+        },
+        "platform_process_id": {
+          "type": "string",
+          "description": "Platform process id\nThis is the id of the return process in the source platform"
+        },
+        "process_id": {
+          "type": "string",
+          "description": "Identifier of the workflow - generated externally\nUnique ID for the entity"
+        },
+        "refund_timing": {
+          "type": "integer",
+          "description": "When the refund/exchange transactions will be executed"
+        },
+        "return_address": {
+          "description": "where to return this return process",
+          "$ref": "#/definitions/models.Address"
+        },
+        "return_method": {
+          "type": "integer",
+          "description": "Return method"
+        },
+        "started_at": {
+          "description": "When the process was started",
+          "$ref": "#/definitions/timestamppb.Timestamp"
+        },
+        "status": {
+          "type": "integer",
+          "description": "current status of the process"
+        },
+        "swift": {
+          "type": "string",
+          "description": "SWIFT For international accounts numbers"
+        },
+        "transactions": {
+          "type": "array",
+          "description": "Transactions associated to the return process\nexecuted in third party platforms",
+          "items": {
+            "$ref": "#/definitions/models.Transaction"
+          }
+        },
+        "user_preferred_lang": {
+          "type": "string",
+          "description": "the language the user selected for the return process\nShould have values like \"es\" or \"es-ES\", \"en\", \"en-GB\"...."
+        },
+        "user_selected_carrier": {
+          "type": "string",
+          "description": "Which carrier has the user selected. It can be NONE as default or\na specific one like Correos, UPS, DHL, etc.\nIt's not necessarily the one used to finally create the shipping label\nThis values is the one that the user selected in the UI"
+        },
+        "user_selected_provider": {
+          "type": "string",
+          "description": "Which logistics provider has the user selected. It can be NONE as default, OPS\nto use REVER's ops team or a specific provider (ie SendCloud)."
+        }
+      },
+      "description": "A return process happening in the platform"
+    },
+    "models.Tag": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "models.Transaction": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "description": "Amount following MoneyFormat"
+        },
+        "created_at": {
+          "description": "Should we include the user? it's the one coming from the return process\nWhen the transaction started its execution",
+          "$ref": "#/definitions/timestamppb.Timestamp"
+        },
+        "currency": {
+          "type": "string",
+          "description": "Currency"
+        },
+        "note": {
+          "type": "string",
+          "description": "Description/notes associated"
+        },
+        "platform_id": {
+          "type": "string",
+          "description": "Identifier of the transaction in the provider\nExamples: the order_id when an excahnge is created,\nor the tracking_id when the shipping is created"
+        },
+        "platform_url": {
+          "type": "string",
+          "description": "URL associated to this transaction in the external system\nExamples: tracking_url of a shipment"
+        },
+        "process_id": {
+          "type": "string",
+          "description": "Rever Return Process associated to this transaction (can only be one)"
+        },
+        "provider": {
+          "type": "integer",
+          "description": "Provider of the transaction (where we execute the transaction)\nExample: if it's an exchange, it's the e-commerce platform like SHOPIFY. Same for\nrefunding on original payment method\nOther values could be: BIZUM, REVOLUT, STRIPE...."
+        },
+        "refund_payment_method": {
+          "type": "integer",
+          "description": "Payment method associated (only when action == TO_REFUND)"
+        },
+        "rever_id": {
+          "type": "string",
+          "description": "Unique ID in the rever platform\nShould start with tx_"
+        },
+        "status": {
+          "type": "integer",
+          "description": "Status of the transaction. Only consider COMPLETED as succesful"
+        },
+        "type": {
+          "type": "integer",
+          "description": "Type of transaction (exchange operation, refund operation....)"
+        },
+        "updated_at": {
+          "description": "Time of the last update (status might have changed\nfor example, from IN_PROGRESS to COMPLETED)",
+          "$ref": "#/definitions/timestamppb.Timestamp"
+        },
+        "user": {
+          "type": "string",
+          "description": "Who executed it"
+        }
+      },
+      "description": "model of a transaction executed in a third party"
+    },
+    "pb.Refund": {
+      "type": "object",
+      "properties": {
+        "action_configs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/models.RefundActionConfig"
+          }
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "bank_transfer_if_no_opm": {
+          "type": "boolean"
+        },
+        "exchange_flow": {
+          "type": "integer"
+        },
+        "payment_method_configs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/models.RefundPaymentMethodConfig"
+          }
+        },
+        "payment_methods": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "round_promocode": {
+          "type": "boolean"
+        },
+        "timing": {
+          "type": "integer"
+        }
+      }
+    },
+    "returnmethods.ReturnMethod": {
+      "type": "object",
+      "properties": {
+        "carrier": {
+          "type": "string"
+        },
+        "name": {
+          "type": "integer"
+        },
+        "provider": {
+          "type": "string"
+        }
+      }
+    },
+    "timestamppb.Timestamp": {
+      "type": "object",
+      "properties": {
+        "nanos": {
+          "type": "integer",
+          "description": "Non-negative fractions of a second at nanosecond resolution. Negative\nsecond values with fractions must still have non-negative nanos values\nthat count forward in time. Must be from 0 to 999,999,999\ninclusive."
+        },
+        "seconds": {
+          "type": "integer",
+          "description": "Represents seconds of UTC time since Unix epoch\n1970-01-01T00:00:00Z. Must be from 0001-01-01T00:00:00Z to\n9999-12-31T23:59:59Z inclusive."
+        }
+      }
+    }
+  }
+}

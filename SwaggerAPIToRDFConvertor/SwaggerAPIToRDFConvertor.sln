@@ -5,7 +5,9 @@ VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SwaggerToRDFConvertor", "SwaggerToRDFConvertor\SwaggerToRDFConvertor.csproj", "{F67258AA-C8F3-4E3B-A70C-29338B9C1654}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwaggerAPIToRDFConvertor.TestApp", "SwaggerAPIToRDFConvertor.TestApp\SwaggerAPIToRDFConvertor.TestApp.csproj", "{8E24B216-6C2D-448C-8617-FF2F5080B78A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SwaggerAPIToRDFConvertor.TestApp", "SwaggerAPIToRDFConvertor.TestApp\SwaggerAPIToRDFConvertor.TestApp.csproj", "{8E24B216-6C2D-448C-8617-FF2F5080B78A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwaggerToRDFConvertor.TestNuget", "SwaggerToRDFConvertor.TestNuget\SwaggerToRDFConvertor.TestNuget.csproj", "{D815E056-3446-4C77-BCA5-560B7CD736F1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{8E24B216-6C2D-448C-8617-FF2F5080B78A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8E24B216-6C2D-448C-8617-FF2F5080B78A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8E24B216-6C2D-448C-8617-FF2F5080B78A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D815E056-3446-4C77-BCA5-560B7CD736F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D815E056-3446-4C77-BCA5-560B7CD736F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D815E056-3446-4C77-BCA5-560B7CD736F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D815E056-3446-4C77-BCA5-560B7CD736F1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
