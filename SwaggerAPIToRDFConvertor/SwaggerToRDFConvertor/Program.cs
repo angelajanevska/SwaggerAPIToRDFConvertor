@@ -185,6 +185,26 @@ class Program
                     graph.Assert(new Triple(operationIdSubject, operationIdProperty, operationIdObj));
                 }
 
+                // Responses
+                var responses = method.Value["responses"];
+                if (responses != null)
+                {
+                    foreach (var response in responses.Children<JProperty>())
+                    {
+                        string responseCode = response.Name;
+                        string responseDescription = response.Value["description"]?.ToObject<string>();
+
+                        INode responseSubject = graph.CreateUriNode(new Uri(pathUri + "#" + methodName + "_response_" + responseCode));
+                        INode responseCodeNode = graph.CreateLiteralNode(responseCode);
+                        INode responseDescriptionNode = graph.CreateLiteralNode(responseDescription);
+
+                        // Create RDF triples for responses
+                        graph.Assert(new Triple(responseSubject, graph.CreateUriNode("ex:HasResponse"), responseSubject));
+                        graph.Assert(new Triple(responseSubject, graph.CreateUriNode("ex:ResponseCode"), responseCodeNode));
+                        graph.Assert(new Triple(responseSubject, graph.CreateUriNode("ex:ResponseDescription"), responseDescriptionNode));
+                    }
+                }
+
                 // Security
                 if (method.Value["security"]?.ToObject<JArray>() != null)
                 {
@@ -194,9 +214,6 @@ class Program
                         {
                             string securityScheme = securityKey.Name;
 
-                            // Determine the structure of securityKey.Value and access its properties accordingly.
-                            // You might need to inspect securityKey.Value and adapt the code accordingly.
-                            // For example, if securityKey.Value is an array of strings, you can access them like this:
                             var securityScopes = securityKey.Value.Select(token => token.Value<string>()).ToArray();
 
                             INode securitySubject = graph.CreateUriNode(new Uri(pathUri + "#" + methodName));
@@ -212,7 +229,6 @@ class Program
                         }
                     }
                 }
-
 
                 subject = graph.CreateUriNode(new Uri(pathUri + "#" + methodName));
                 obj = graph.CreateUriNode(new Uri("http://example.org/" + methodType));
