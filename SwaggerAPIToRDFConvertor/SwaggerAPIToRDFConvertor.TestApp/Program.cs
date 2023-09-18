@@ -1,13 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.IO;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using VDS.RDF;
 using VDS.RDF.Writing;
 using StringWriter = System.IO.StringWriter;
 using System.Reflection;
 using static SwaggerToRDFConvertor.RDFConvertor;
-
 class Program
 {
     static void Main(string[] args)
@@ -45,5 +44,4 @@ class Program
             Console.WriteLine("Error occurred: " + ex.Message);
         }
     }
-
 }
