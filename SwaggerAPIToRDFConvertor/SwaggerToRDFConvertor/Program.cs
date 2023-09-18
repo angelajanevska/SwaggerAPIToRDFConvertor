@@ -181,7 +181,7 @@ class Program
 
                     // Consumes
                     var consumesArray = method.Value["consumes"]?.ToObject<string[]>();
-                   if (consumesArray != null)
+                    if (consumesArray != null)
                     {
                         foreach (var consumeType in consumesArray)
                         {
@@ -212,34 +212,26 @@ class Program
                         graph.Assert(new Triple(operationIdSubject, operationIdProperty, operationIdObj));
                     }
 
-                // Responses
-                var responses = method.Value["responses"];
-                if (responses != null)
-                {
-                    foreach (var response in responses.Children<JProperty>())
+                    // Responses
+                    var responses = method.Value["responses"];
+                    if (responses != null)
                     {
-                        string responseCode = response.Name;
-                        string responseDescription = response.Value["description"]?.ToObject<string>();
-
-                        INode responseSubject = graph.CreateUriNode(new Uri(pathUri + "#" + methodName + "_response_" + responseCode));
-                        INode responseCodeNode = graph.CreateLiteralNode(responseCode);
-                        INode responseDescriptionNode = graph.CreateLiteralNode(responseDescription);
-
-                        // Create RDF triples for responses
-                        graph.Assert(new Triple(responseSubject, graph.CreateUriNode("ex:HasResponse"), responseSubject));
-                        graph.Assert(new Triple(responseSubject, graph.CreateUriNode("ex:ResponseCode"), responseCodeNode));
-                        graph.Assert(new Triple(responseSubject, graph.CreateUriNode("ex:ResponseDescription"), responseDescriptionNode));
-                    }
-                }
-
-                // Security
-                if (method.Value["security"]?.ToObject<JArray>() != null)
-                {
-                    foreach (var securityItem in method.Value["security"])
-                    {
-                        foreach (var securityKey in securityItem.Children<JProperty>())
+                        foreach (var response in responses.Children<JProperty>())
                         {
-                            string securityScheme = securityKey.Name;
+                            string responseCode = response.Name;
+                            string responseDescription = response.Value["description"]?.ToObject<string>();
+
+                            INode responseSubject = graph.CreateUriNode(new Uri(pathUri + "#" + methodName + "_response_" + responseCode));
+                            INode responseCodeNode = graph.CreateLiteralNode(responseCode);
+                            INode responseDescriptionNode = graph.CreateLiteralNode(responseDescription);
+
+                            // Create RDF triples for responses
+                            graph.Assert(new Triple(responseSubject, graph.CreateUriNode("ex:HasResponse"), responseSubject));
+                            graph.Assert(new Triple(responseSubject, graph.CreateUriNode("ex:ResponseCode"), responseCodeNode));
+                            graph.Assert(new Triple(responseSubject, graph.CreateUriNode("ex:ResponseDescription"), responseDescriptionNode));
+                        }
+                    }
+
                     // Security
                     if (method.Value["security"]?.ToObject<JArray>() != null)
                     {
@@ -275,6 +267,8 @@ class Program
                     graph.Assert(new Triple(subject, methodProperty, obj));
                 }
             }
+
+
 
 
             // SecurityDefinitions
@@ -354,12 +348,11 @@ class Program
                 }
             }
 
-
             return graph;
         }
         catch (Exception ex)
         {
-            
+
             Console.WriteLine("Error occurred in converting the swagger api to rdf: " + ex.Message);
             return null;
         }
